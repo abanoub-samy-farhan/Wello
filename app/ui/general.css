@@ -1,0 +1,32 @@
+/* Color pallet choosen, grading from the primary */
+.p1st{
+    color: #3b1e54;
+}
+
+.p1st-bg{
+    background-color: #3b1e54;
+}
+
+.p2nd{
+    color: #9b7ebd;
+}
+
+.p2nd-bg{
+    background-color: #9b7ebd;
+}
+
+.p3rd{
+    color: #d4bee4;
+}
+
+.p3rd-bg{
+    background-color: #d4bee4;
+}
+
+.p4th{
+    color: #eeeeee;
+}
+
+.p4th-bg{
+    background-color: #eeeeee;
+}

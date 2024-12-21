@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${raleway.className} antialiased p4th-bg`}
+        className={`${raleway.className} antialiased p4th-bg scroll-smooth`}
       >
         {children}
       </body>

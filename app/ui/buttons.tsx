@@ -53,4 +53,14 @@ export function LearnMoreButton() {
       </button>
     );
   }
+
+export function SignInButton() {
+  const { styles } = useStyle();
+  return (
+    <Button type="primary" className={`${styles.linearGradientButton} font-bold`}
+      style={{borderRadius: "40px", background: "linear-gradient(200deg, #9b7ebd, #3b1e54)", padding: "20px 20px"}}>
+      Sign Up
+    </Button>
+  );
+}
   

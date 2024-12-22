@@ -7,14 +7,19 @@ Wello is a project aimed at revolutionizing the banking system by integrating mu
 3. [License](#license)  
 ---
 ## **ToDo**  
-- [ ] Creating the public profile page
-- [ ] Creating the Welcome page home
-- [ ] Integrate popular online wallets (e.g., PayPal, Skrill).  
-- [ ] Add support for credit/debit card management.  
-- [ ] Create a unified and secure dashboard for users.  
-- [ ] Implement robust transaction history tracking.  
-- [ ] Build centralized payment processing for online shopping.  
-- [ ] Ensure data security and compliance with banking regulations.
+- [ ] Creating the public profile page (including report options, sending/reciving action buttons)
+- [ ] Creating the Welcome page home (including hero, key featurs, and about sections)
+- [ ] Creating the contact us section
+- [ ] Implementing Token-based authentication (JWT) (main), and OAuth (optional)
+- [ ] Creating a customer support chatbot integration
+- [ ] Creating a Dashboard view for users to interact with
+- [ ] Money Transfer/Request Methods
+- [ ] Integrate popular Payment Methods (Banks, Paypal, mobile wallets)
+- [ ] Implementing Primary and Secondary methods feature
+- [ ] Implementing robust transaction history tracking.
+- [ ] Implementing Notification system
+- [ ] Build centralized payment method (Token-based) processing for online shopping.
+- [ ] Developing a user profile including his infomation, with editing enabled
 ---
 ## **Contribution**  
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change or improve, [Email Us](mailto:abanoubsamy2341@gmail.com) 

@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={raleway.variable}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased p4th-bg scroll-smooth">{children}</body>
     </html>
   );
 }

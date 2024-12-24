@@ -1,7 +1,7 @@
 import React from 'react';
-import ProfileHeader from './components/ProfileHeader';
-import ProfileDetails from './components/ProfileDetails';
-import Actions from './components/Actions';
+import ProfileHeader from '../ui/public_profile/ProfileHeader';
+import ProfileDetails from '../ui/public_profile/ProfileDetails';
+import Actions from '../ui/public_profile/Actions';
 
 const PublicProfilePage: React.FC = () => {
   const userData = {

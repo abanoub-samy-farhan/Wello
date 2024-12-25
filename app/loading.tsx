@@ -3,7 +3,6 @@ import React from 'react';
 export default function Loading(){
     return (
         <div className="flex flex-col space-y-2 justify-center items-center h-screen w-screen bg-primary4">
-            {/* The name of the Logo Wello with opacity changing from 0 to 100 and back to 0 */}
             <div className="text-5xl text-primary1 font-bold animate-pulse">
                 Wello
             </div>

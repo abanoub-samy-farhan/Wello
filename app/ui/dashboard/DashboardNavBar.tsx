@@ -121,7 +121,7 @@ export default function DashboardNavBar() {
                 </li>
             </ul>
             {/* Sign Out */}
-            <div className="md:flex absolute mt-5 md:mt-20 md:border-t-2 md:border-primary1 md:border-opacity-20 w-full">
+            <div className=" absolute mt-5 md:mt-20 md:border-t-2 md:border-primary1 md:border-opacity-20 w-full">
                 <div className={`flex items-center overflow-hidden gap-2 pl-5 py-4 
                 hover:bg-red-500 hover:text-white p-1 transition-all duration-250 ease-in-out font-bold`}>
                     <img src="/logout_icon.png" alt="Sign Out" className="h-5 w-fit" />

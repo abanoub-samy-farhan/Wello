@@ -10,8 +10,7 @@ export interface User {
     email: string;
     full_name: string;
     phone_number: string;
-    photo_uri: string;
-    is_suspended: boolean;
+    is_suspended: boolean | false;
 }
 
 export interface UserProps {
@@ -32,7 +31,7 @@ export interface PaymentMethod {
     is_primary: boolean;
     expires_at: Date;
     type: string;
-    balance: number;
+    balance?: number;
     last_four: string;
 }
 

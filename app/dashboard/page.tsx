@@ -2,7 +2,7 @@ import React from 'react';
 import Dashboard  from '../ui/dashboard/Dashboard';
 import { User } from '../interfaces';
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
   const user: User = {
     user_id: '1',
     email: 'abanoubsamy2341@gmail.com',
@@ -11,6 +11,7 @@ export default function DashboardPage() {
     photo_uri: 'https://avatars.githubusercontent.com/u/47273207?v=4',
     is_suspended: false,
   }
+  await new Promise((resolve) => setTimeout(resolve, 5000));
   
   return (
     <Dashboard user={user} />

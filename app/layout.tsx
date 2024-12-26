@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Raleway } from 'next/font/google';
 import './globals.css';
+import Loading from './loading';
+import { Suspense } from 'react';
 
 const raleway = Raleway({
   subsets: ['latin'],
@@ -13,14 +15,17 @@ export const metadata: Metadata = {
   description: 'A new banking system',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Simulating a slow network 
   return (
     <html lang="en" className={raleway.variable}>
-      <body className="antialiased p4th-bg scroll-smooth">{children}</body>
+      <Suspense fallback={<Loading />}>
+        <body className="antialiased p4th-bg scroll-smooth">{children}</body>
+      </Suspense>
     </html>
   );
 }

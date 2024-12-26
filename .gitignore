@@ -1,7 +1,7 @@
 # Ignore node_modules directory
 node_modules/*
 .next/*
-
+backend/backend/__pycache__/*
 # Ignore log files
 *.log
 

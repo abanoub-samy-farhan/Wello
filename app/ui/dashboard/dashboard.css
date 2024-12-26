@@ -1,0 +1,14 @@
+nav ul li a {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+    padding: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+nav ul li {
+    width: 100%; 
+}

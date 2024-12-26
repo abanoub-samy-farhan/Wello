@@ -4,6 +4,7 @@ import { ConfigProvider, Steps } from 'antd';
 import InformationEntry from '../ui/newUserComponents/InformationEntry';
 import PaymentMethodEntry from '../ui/newUserComponents/PaymentMethodEntry';
 import ReviewEntries from '../ui/newUserComponents/ReviewEntries';
+import { User, PaymentMethod } from '../interfaces';
 
 
 const steps = [
@@ -23,7 +24,7 @@ const items = steps.map((item) => ({ key: item.title, title: item.title }));
 export default function NewPage() {
   const [current, setCurrent] = useState(0);
   const [user, setUser] = useState({});
-  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [paymentMethod, setPaymentMethod] = useState({});
   
   const handleNext = () => {
     setCurrent(current + 1);
@@ -32,13 +33,13 @@ export default function NewPage() {
   const handleBack = () => {
     setCurrent(current - 1);
   }
-  const handleSaveUser = (user) => {
+  const handleSaveUser = (user: User) => {
     setUser(user);
     handleNext();
   }
 
-  const handleSavePaymentMethods = (paymentMethods) => {
-    setPaymentMethods(paymentMethods);
+  const handleSavePaymentMethods = (paymentMethod: PaymentMethod) => {
+    setPaymentMethod(paymentMethod);
     handleNext();
   }
 
@@ -51,16 +52,17 @@ export default function NewPage() {
         },
       }}
     >
-      <div className="bg-white text-center h-screen w-screen p-16" style={{ color: '#3b1e54' }}>
+      <div className="bg-white text-center h-screen overflow-auto w-screen p-16" style={{ color: '#3b1e54' }}>
         <h1 className="text-4xl font-bold" >
           Welcome to Wello
         </h1>
         <h2>Let's get started</h2>
         <Steps current={current} items={items} className="mt-10" />
         <div className="mt-10">
-          <div className='justify-center h-96'>
+          <div className='justify-center h-fit md:h-96'>
             {current === 0 && ( <InformationEntry user={user} handleSubmit={handleSaveUser} /> )}
-            {current === 1 && ( <PaymentMethodEntry paymentMethods={paymentMethods} onSubmit={handleSavePaymentMethods} /> )}
+            {current === 1 && ( <PaymentMethodEntry paymentMethod={paymentMethod} handleSubmit={handleSavePaymentMethods} /> )}
+            {current === 2 && ( <ReviewEntries user={user} paymentMethod={paymentMethod} /> )}
           </div>
           <div className="mt-10">
             {current > 0 && (

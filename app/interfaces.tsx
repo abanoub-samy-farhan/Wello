@@ -8,6 +8,7 @@
 export interface User {
     user_id: string;
     email: string;
+    address: string;
     full_name: string;
     phone_number: string;
     is_suspended: boolean | false;

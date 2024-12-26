@@ -25,18 +25,21 @@ const InformationEntry: React.FC<InformationEntryProps> = ({ user, handleSubmit 
     }));
   };
 
-  const TestSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmition = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Submitting User Data:', formData);
     handleSubmit(formData);
-  };
+  }
+
+  
 
   return (
-    <div>
-      <h1>Information Entry</h1>
-      <h2>Let's get started</h2>
-      <form onSubmit={TestSubmit} className="space-y-4">
-        <div>
+    <div className="flex flex-col items-center justify-center">
+      <div>
+        <h1 className="text-2xl font-bold">Enter Your Information</h1>
+      </div>
+      <form onSubmit={handleSubmition} className="space-y-4 md:w-1/2 
+      justify-center items-center ">
+        <div className="flex flex-col justify-start items-start">
           <label htmlFor="full_name">Full Name:</label>
           <input
             type="text"
@@ -44,11 +47,11 @@ const InformationEntry: React.FC<InformationEntryProps> = ({ user, handleSubmit 
             name="full_name"
             value={formData.full_name}
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="border border-primary1 p-2 rounded w-full"
             required
           />
         </div>
-        <div>
+        <div className='flex flex-col justify-start items-start'>
           <label htmlFor="address">Address:</label>
           <input
             type="text"
@@ -56,11 +59,11 @@ const InformationEntry: React.FC<InformationEntryProps> = ({ user, handleSubmit 
             name="address"
             value={formData.address}
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="border border-primary1 p-2 rounded w-full"
             required
           />
         </div>
-        <div>
+        <div className='flex flex-col justify-start items-start'>
           <label htmlFor="phone_number">Phone Number:</label>
           <input
             type="tel"
@@ -68,11 +71,11 @@ const InformationEntry: React.FC<InformationEntryProps> = ({ user, handleSubmit 
             name="phone_number"
             value={formData.phone_number}
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="border border-primary1 p-2 rounded w-full"
             required
           />
         </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+        <button type="submit" className="bg-primary1 text-white px-4 py-2 rounded">
           Submit
         </button>
       </form>

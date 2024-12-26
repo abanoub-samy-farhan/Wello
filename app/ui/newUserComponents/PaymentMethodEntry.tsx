@@ -1,12 +1,20 @@
 import React from 'react';
-import {PaymentMethods} from '../interfaces';
+import {PaymentMethod} from '../../interfaces';
+import AddMethodForm from './AddMethodForm';
 
-export default function PaymentMethodEntry( {paymentMethods}: PaymentMethods ) {
+
+interface PaymentMethodEntryProps {
+    paymentMethod: Partial<PaymentMethod>;
+    handleSubmit: (paymentMethod: PaymentMethod) => void;
+}
+
+const PaymentMethodEntry: React.FC<PaymentMethodEntryProps> = ( {paymentMethod, handleSubmit} ) => {
     return (
         <div>
-            <h1>Payment Method Entry</h1>
-            <h2>Let's get started</h2>
+                <AddMethodForm paymentMethod={paymentMethod} handleSubmit={handleSubmit} />
         </div>
 
     );
 }
+
+export default PaymentMethodEntry;

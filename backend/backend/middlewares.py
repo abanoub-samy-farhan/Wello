@@ -11,7 +11,9 @@ class JWTMiddleware(MiddlewareMixin):
         if token:
             try:
                 payload = jwt.decode(token, config('JWT_SECRET'), algorithms=['HS256'])
-                request.user = payload
+                request.user_id = payload['id']
+                if not request.user_id:
+                    return Response({'message': 'Email not verified'}, status=status.HTTP_401_UNAUTHORIZED)
             except jwt.ExpiredSignatureError:
                 return Response({'message': 'Token expired'}, status=status.HTTP_401_UNAUTHORIZED)
             except jwt.InvalidTokenError:

@@ -1,18 +1,22 @@
+'use client';
 import React from 'react';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 const ProfileHeader: React.FC = () => {
   return (
-    <header className="w-full bg-primary4 rounded-3xl">
-      <div className="max-ws mx-auto px-6 py-4 flex items-center justify-between">
+    <header className="bg-primary4 text-primary1">
+      <div className="container mx-auto flex items-center justify-between px-4 py-4">
         {/* Logo and 'Wello' Text */}
         <div className="flex items-center">
-          <img
-            src="/WelloLogo.png"
-            alt="Logo"
-            className="h-12 w-10 md:h-20 md:w-16"
-          />
-          <span className="ml-4 text-3xl font-bold font-sans text-primary1">
+          {/* Added a background to enhance logo visibility */}
+          <div>
+            <img
+              src="/WelloLogo.png"
+              alt="Logo"
+              className="h-10 w-auto"
+            />
+          </div>
+          <span className="ml-3 text-2xl font-bold font-sans text-primary1">
             Wello
           </span>
         </div>
@@ -20,13 +24,11 @@ const ProfileHeader: React.FC = () => {
         {/* Report Button */}
         <div className="flex items-center">
           <button
-            className="flex items-center bg-gradient-to-r from-primary1 to-primary2 text-primary4 rounded-xl px-3 py-1.5 focus:outline-none"
+            className="flex items-center bg-primary1 text-primary4 rounded-md px-4 py-2 shadow hover:bg-primary2"
             aria-label="Report"
           >
-            <ExclamationCircleOutlined
-              style={{ fontSize: '1.5rem', marginRight: '0.5rem', color: 'currentColor' }}
-            />
-            <span className="text-xl font-bold font-sans">Report</span>
+            <ExclamationCircleOutlined className="text-xl mr-2" />
+            <span className="text-base font-bold">Report</span>
           </button>
         </div>
       </div>

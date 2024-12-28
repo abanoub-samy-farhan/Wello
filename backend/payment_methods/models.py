@@ -33,4 +33,51 @@ class PaymentMethod(models.Model):
         except Exception as e:
             return False
             
-        
+
+class Accounts(models.Model):
+    payment_method_id = models.OneToOneField(PaymentMethod, on_delete=models.CASCADE)
+    user_id = models.ForeignKey("authentication.User", on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return "Account: " + self.user_id.phone_number
+
+    @staticmethod
+    def get_balance(user_id):
+        # Get all accounts for the user
+        accounts = Accounts.objects.filter(user_id=user_id)
+        total_balance = 0
+        for account in accounts:
+            total_balance += account.balance
+        return total_balance
+
+    @staticmethod
+    def get_primary_account_balance(payment_method_id):
+        try:
+            account = Accounts.objects.get(payment_method_id=payment_method_id)
+            return account.balance
+        except Exception as e:
+            return 0
+    
+    @staticmethod
+    def top_up_account(payment_method_id, amount):
+        try:
+            account = Accounts.objects.get(payment_method_id=payment_method_id)
+            account.balance += amount
+            account.save()
+            return True
+        except Exception as e:
+            return False
+    
+    @staticmethod
+    def withdraw_from_account(payment_method_id, amount):
+        try:
+            account = Accounts.objects.get(payment_method_id=payment_method_id)
+            if account.balance < amount:
+                raise Exception("Insufficient balance")
+            account.balance -= amount
+            account.save()
+            return True
+        except Exception as e:
+            return False
+    

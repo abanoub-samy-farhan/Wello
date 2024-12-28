@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import PaymentGetAll, PaymentGetByUserId, PaymentGetById, PaymentUpdate, PaymentCreate, PaymentSwitchPrimaryMethod, PaymentDelete
+from .views import PaymentGetAll, PaymentGetByUserId, PaymentGetById, \
+    PaymentUpdate, PaymentCreate, PaymentSwitchPrimaryMethod, PaymentDelete, CreatingAccount
+
 
 urlpatterns = [
     path('payment/get-all/', PaymentGetAll.as_view(), name='payment-get-all'),
@@ -9,4 +11,5 @@ urlpatterns = [
     path('payment/create/', PaymentCreate.as_view(), name='payment-create'),
     path('payment/switch-primary-method/', PaymentSwitchPrimaryMethod.as_view(), name='payment-switch-primary-method'),
     path('payment/delete/', PaymentDelete.as_view(), name='payment-delete'),
+    path('account/create/', CreatingAccount.as_view(), name='account-create'),
 ]

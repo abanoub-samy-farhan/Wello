@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PaymentMethod
+from .models import PaymentMethod, Accounts
 from authentication.models import User
 import datetime
 
@@ -96,3 +96,9 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         instance.is_primary = validated_data.get('is_primary', instance.is_primary)
         instance.save()
         return instance
+    
+
+class AccountsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Accounts
+        fields = '__all__'

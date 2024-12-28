@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import PaymentMethod
 from authentication.models import User
-from .serializers import PaymentMethodSerializer
+from .serializers import PaymentMethodSerializer, AccountsSerializer
 
 class PaymentGetAll(APIView):
     def get(self, request):
@@ -19,6 +19,17 @@ class PaymentGetByUserId(APIView):
         serializer = PaymentMethodSerializer(payment_methods, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+class CreatingAccount(APIView):
+    def post(self, request):
+        user_id = request.user_id
+        request.data['user_id'] = user_id
+        serializer = AccountsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class PaymentGetById(APIView):
     def get(self, request):
         payment_method_id = request.data.get('payment_method_id')

@@ -4,6 +4,7 @@
 import React from 'react';
 
 interface UserDetails {
+  userId: string; // Added 'userId' field
   name: string;
   email: string;
   phoneNumber?: string;
@@ -25,6 +26,15 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user }) => {
         Profile Details
       </h2>
       <div className="space-y-6">
+        {/* User ID */}
+        <div className="flex flex-col sm:flex-row sm:justify-between">
+          <span className="text-lg font-medium text-primary1">
+            User ID:
+          </span>
+          <span className="text-lg font-semibold text-primary1">
+            {user.userId}
+          </span>
+        </div>
         {/* Email */}
         <div className="flex flex-col sm:flex-row sm:justify-between">
           <span className="text-lg font-medium text-primary1">

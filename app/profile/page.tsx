@@ -6,6 +6,7 @@ import Actions from '../ui/public_profile/Actions';
 
 const PublicProfilePage: React.FC = () => {
   const userData = {
+    userId: 'TSX123459@AMR876',
     name: 'Abdulrahman Mahmoud Riyad',
     email: 'abdo@django.backend',
     phoneNumber: '+20 111 364 3894',

@@ -31,6 +31,7 @@ Thumbs.db
 *.exe
 *.o
 *.so
+*.txt
 
 # Ignore coverage reports
 coverage/

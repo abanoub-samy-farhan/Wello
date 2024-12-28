@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import ProfileHeader from '../ui/public_profile/ProfileHeader';
 import ProfileDetails from '../ui/public_profile/ProfileDetails';
@@ -14,10 +15,10 @@ const PublicProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-primary4">
       <ProfileHeader />
-      <div className="container mx-auto p-4">
+      <main className="container mx-auto px-4">
         <ProfileDetails user={userData} />
         <Actions />
-      </div>
+      </main>
     </div>
   );
 };

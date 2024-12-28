@@ -43,3 +43,13 @@ export interface PaymentMethodProps {
 export interface PaymentMethodListProps {
     paymentMethods: PaymentMethod[];
 }
+
+// interfaces.tsx
+
+export interface Transaction {
+    transaction_id: string;
+    amount: number;
+    type: 'Money Transfer' | 'Purchase';
+    state: 'Completed' | 'Pending' | 'Failed';
+    balance: number;
+  }

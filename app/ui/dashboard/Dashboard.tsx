@@ -45,7 +45,7 @@ export default function DashboardPage({ user }: UserProps) {
                 <BalanceView paymentMethods={paymentMethods} />
             </div>
             <div className="flex flex-col gap-4 mt-10 border-t-2 py-4 border-primary3 pt-4 justify-center items-center">
-                <h1 className="text-sm font-semibold">Make some Actions</h1>
+                <h1 className="text-2xl font-semibold">Take Action</h1>
                 <div className="flex flex-col md:flex-row md:justify-center w-full mt-4 gap-4 md:gap-10">
                     <DashboardSendMoneyButton />
                     <DashboardMakePurchaseButton />

@@ -44,8 +44,6 @@ export interface PaymentMethodListProps {
     paymentMethods: PaymentMethod[];
 }
 
-// interfaces.tsx
-
 export interface Transaction {
     transaction_id: string;
     amount: number;

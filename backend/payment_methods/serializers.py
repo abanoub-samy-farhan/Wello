@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import PaymentMethod
-from user_management.models import User
+from authentication.models import User
+import datetime
 
 class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,42 +12,80 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        user_id = validated_data.pop('user_id')
-        user = User.objects.get(id=user_id)
-        provider = validated_data.get('provider')
+        user = validated_data.get('user_id')
+        provider = validated_data.pop('provider')
         
-        # Validate provider and method type
-        if provider in ['Vodafone', 'Orange', 'Fawry']:
-            if validated_data.get('method_type') not in ['Mobile']:
-                raise serializers.ValidationError("Invalid method type for provider")
-            if not user.phone_number:
-                raise serializers.ValidationError("User has no phone number")
-            if provider == 'Vodafone' and not user.phone_number.startswith('010'):
-                raise serializers.ValidationError("Vodafone number must start with 010")
-            if provider == 'Orange' and not user.phone_number.startswith('012'):
-                raise serializers.ValidationError("Orange number must start with 012")
+        # Validate the provider supported
+        if provider.lower() not in ['visa', 'mastercard', 'paypal', 'orange', 'vodafone']:
+            raise serializers.ValidationError("Provider not supported")
+        
+        # Validate that the user has no methods with the same provider
+        payment_methods = PaymentMethod.objects.filter(user_id=user.id, provider=provider)
+        if len(payment_methods) > 0:
+            raise serializers.ValidationError("User already has a payment method with this provider")
+        
+        # Validate the card number is found if the provider is visa or mastercard
+        if provider.lower() in ['visa', 'mastercard']:
+            card_number = validated_data.get('card_number')
+            if not card_number:
+                raise serializers.ValidationError("Card number is required")
+            if validated_data.get('method_type') not in ['credit', 'debit']:
+                raise serializers.ValidationError("Method type is invalid")
+            if len(card_number) != 16:
+                raise serializers.ValidationError("Card number is invalid")
             
-        elif provider in ['Visa', 'Mastercard', 'Paypal']:
-            if validated_data.get('method_type') not in ['Credit', 'Debit', 'Online Wallet']:
-                raise serializers.ValidationError("Invalid method type for provider")
+            # Validate expiry date in formate MM/YY string
+            expiry_date = validated_data.get('expiry_date')
+            if not expiry_date:
+                raise serializers.ValidationError("Expiry date is required")
+            expiry_date = expiry_date.split('/')
+            current_date = datetime.datetime.now().strftime("%m/%y").split('/')
+            current_date[1] = current_date[1][-2:]
+            if len(expiry_date) != 2:
+                raise serializers.ValidationError("Expiry date is invalid")
+            elif len(expiry_date[0]) != 2 or len(expiry_date[1]) != 2:
+                raise serializers.ValidationError("Expiry date is invalid")
+            elif (expiry_date[0] < current_date[0] and expiry_date[1] <= current_date[1]) or \
+                (expiry_date[0] > '12' or expiry_date[1] < '20') or current_date[1] > expiry_date[1]:
+                raise serializers.ValidationError("Expiry date is invalid")
+            
+        if provider.lower() in ['orange', 'vodafone']:
+            phone_number = user.phone_number
+            if not phone_number:
+                raise serializers.ValidationError("Phone number is required")
+            
+            if phone_number[0:3] != '012' and provider.lower() == 'orange':
+                raise serializers.ValidationError("Phone number is invalid for this provider")
+            elif phone_number[0:3] != '010' and provider.lower() == 'vodafone':
+                raise serializers.ValidationError("Phone number is invalid for this provider")
+            
+            if len(phone_number) != 11:
+                raise serializers.ValidationError("Phone number is invalid")
+            
+        if provider.lower() == 'paypal':
+            email = user.email
+            if not email:
+                raise serializers.ValidationError("Email is required")
+            if validated_data.get('method_type').lower() != 'online wallet':
+                raise serializers.ValidationError("Method type is invalid")
+            
         
+        validated_data['provider'] = provider.lower()
         # Validate that the user has no primary payment method
-        payment_methods = PaymentMethod.objects.filter(user_id=user_id)
+        payment_methods = PaymentMethod.objects.filter(user_id=user.id, is_primary=True)
         if len(payment_methods) == 0:
             validated_data['is_primary'] = True
+        payment_methods = PaymentMethod.objects.filter(user_id=user.id)
+        if len(payment_methods) == 2:
+            raise serializers.ValidationError("Cannot add more than 2 payment methods")
         
-        # Validate expiry date
-        expiry_date = validated_data.get('expiry_date')
-        if expiry_date < user.created_at.date():
-            raise serializers.ValidationError("Expiry date cannot be before user creation date")
-        payment_method = PaymentMethod.objects.create(user_id=user, **validated_data)
+        payment_method = PaymentMethod.objects.create(**validated_data)
         return payment_method
     
     def update(self, instance, validated_data):
         if validated_data.get('is_primary'):
-            user_id = validated_data.get('user_id', instance.user_id)
-            user = User.objects.get(id=user_id)
-            payment_methods = PaymentMethod.objects.filter(user_id=user_id)
+            user = validated_data.get('user_id')
+            payment_methods = PaymentMethod.objects.filter(user_id=user.id)
             if len(payment_methods) == 1:
                 raise serializers.ValidationError("Cannot remove the only payment method")
             user.switch_primary_payment_method()

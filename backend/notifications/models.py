@@ -1,5 +1,5 @@
 from django.db import models
-from user_management.models import User
+from authentication.models import User
 from payment_methods.models import PaymentMethod
 import uuid
 
@@ -70,8 +70,7 @@ class Notification(models.Model):
         sender = User.objects.get(id=self.user_id)
         receiver = User.objects.get(id=receiver_id)
         sender_message = f"You have requested ${amount} from {receiver.full_name}"
-        receiver_message = f"{sender.full_name} has requested ${amount} from you, this amount will be 
-        deducted from your primary account"
+        receiver_message = f"{sender.full_name} has requested ${amount} from you, this amount will be deducted from your primary account"
         reciever_notification = Notification.objects.create(
             user_id=receiver,
             title="Money Request",

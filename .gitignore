@@ -5,6 +5,9 @@ backend/backend/__pycache__/*
 # Ignore log files
 *.log
 
+# Ignore environment files
+backend/.env
+
 # Ignore build directories
 dist/
 build/

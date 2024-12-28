@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Transaction
+from notifications.models import Notification
 from payment_methods.models import PaymentMethod, Accounts
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -43,6 +44,13 @@ class TransactionSerializer(serializers.ModelSerializer):
                         validated_data['balance'] = Accounts.get_balance(user.id)
                         validated_data['description'] = 'Purchase made'
                         transaction = Transaction.objects.create(**validated_data)
+
+                        Notification.objects.create(
+                            user_id=user,
+                            title="Purchase Proceeded Successfully",
+                            notification_type="Purchase",
+                            message=f"You have made a purchase of ${amount} successfully from both accounts",
+                        )
                         return transaction
                     else:
                         raise serializers.ValidationError('Transaction failed')
@@ -53,6 +61,12 @@ class TransactionSerializer(serializers.ModelSerializer):
                     validated_data['balance'] = Accounts.get_balance(user.id)
                     validated_data['description'] = 'Purchase made'
                     transaction = Transaction.objects.create(**validated_data)
+                    Notification.objects.create(
+                            user_id=user,
+                            title="Purchase Proceeded Successfully",
+                            notification_type="Purchase",
+                            message=f"You have made a purchase of ${amount} successfully from primary account",
+                        )
                     return transaction
                 else:
                     raise serializers.ValidationError('Transaction failed')
@@ -77,6 +91,9 @@ class TransactionSerializer(serializers.ModelSerializer):
                                                                        recipient_id=user, status='Success',\
                                                                           description='Money received from ' + user.full_name, \
                                                                             balance=Accounts.get_balance(recipient.id))
+                    
+                    # Making Notification for sender and reciever
+                    Notification.money_sent_recieve_notification(user, recipient, amount)
                     return transaction_sender
                 else:
                     raise serializers.ValidationError('Transaction failed')
@@ -90,6 +107,10 @@ class TransactionSerializer(serializers.ModelSerializer):
                                                                recipient_id=user, status='Pending',\
                                                                   description='Money requested by ' + user.full_name, \
                                                                     balance=Accounts.get_balance(recipient.id))
+            
+            # Making Notification for reciever of the request
+
+            Notification.money_request_notification(recipient, user, amount)
             return transaction_recipient
         
 

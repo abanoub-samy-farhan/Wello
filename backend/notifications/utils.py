@@ -45,6 +45,7 @@ class EmailRouter(Router):
         msg['To'] = email
         self.server.sendmail(self.username, email, msg.as_string())
         return reset_token
+    
     def send_report_notification(self, email):
         msg = MIMEText('You have been reported, please check the app for more details')
         msg['Subject'] = '[Action Needed] Report Notification'

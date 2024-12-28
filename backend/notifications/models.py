@@ -37,21 +37,12 @@ class Notification(models.Model):
         except Exception as e:
             return False
     
-    def money_sent_recieve_notification(self, receiver_id, amount):
-        sender = User.objects.get(id=self.user_id)
-        receiver = User.objects.get(id=receiver_id)
-        sender_message = f"You have sent ${amount} to {receiver.full_name} successfully"
-        receiver_primary_account = PaymentMethod.objects.get(user_id=receiver_id, is_primary=True)
-        account = None
-        if receiver_primary_account.provider == "Paypal":
-            account = "Paypal"
-        elif receiver_primary_account.provider in ['Visa', 'Mastercard']:
-            account = "Bank Account"
-        else:
-            account = "Wallet"
-        reciever_message = f"You have received ${amount} from {sender.full_name} successfully, it has been deposited to your {account} account"
+    @staticmethod
+    def money_sent_recieve_notification(sender, reciever, amount):
+        sender_message = f"You have sent ${amount} to {reciever.full_name} successfully"
+        reciever_message = f"You have received ${amount} from {sender.full_name} successfully, it has been deposited to your primary account"
         reciever_notification = Notification.objects.create(
-            user_id=receiver,
+            user_id=reciever,
             title="Money Received",
             notification_type="Money Sent/Received",
             message=reciever_message,
@@ -66,56 +57,36 @@ class Notification(models.Model):
         sender_notification.save()
         return True
     
-    def money_request_notification(self, receiver_id, amount):
-        sender = User.objects.get(id=self.user_id)
-        receiver = User.objects.get(id=receiver_id)
-        sender_message = f"You have requested ${amount} from {receiver.full_name}"
+    @staticmethod
+    def money_request_notification(reciever: User, sender, amount):
         receiver_message = f"{sender.full_name} has requested ${amount} from you, this amount will be deducted from your primary account"
         reciever_notification = Notification.objects.create(
-            user_id=receiver,
+            user_id=reciever,
             title="Money Request",
             notification_type="Money Request",
             message=receiver_message,
         )
-        sender_notification = Notification.objects.create(
-            user_id=sender,
-            title="Money Request",
-            notification_type="Money Request",
-            message=sender_message,
-        )
         reciever_notification.save()
-        sender_notification.save()
         return True
     
-    def declined_request_notification(self, reciever_id):
-        receiver = User.objects.get(id=reciever_id).full_name
-        decline_notification = Notification.objects.create(
-            user_id=self.user_id,
+    @staticmethod
+    def declined_request_notification(reciever, sender_full_name):
+        Notification.objects.create(
+            user_id=reciever,
             title="Request Declined",
             notification_type="Money Request",
-            message=f"Your request has been declined by {receiver}",
+            message=f"Your request has been declined by {sender_full_name}",
         )
+
         return True
     
-    def money_transfere_nosufficient_funds(self, receiver_id):
-        receiver = User.objects.get(id=receiver_id).full_name
+    @staticmethod
+    def send_money_nosufficient_funds(sender, reciever):
         decline_notification = Notification.objects.create(
-            user_id=self.user_id,
+            user_id=sender,
             title="Insufficient Funds",
             notification_type="Money Request",
-            message=f"Your request to transfer money to {receiver} has been declined due to insufficient funds",
-        )
-        decline_notification.save()
-        return True
-    
-    def send_money_nosufficient_funds(self, receiver_id):
-        sender = User.objects.get(id=self.user_id).full_name
-        reciever = User.objects.get(id=receiver_id).full_name
-        decline_notification = Notification.objects.create(
-            user_id=self.user_id,
-            title="Insufficient Funds",
-            notification_type="Money Request",
-            message=f"Your request to send money to {reciever} has been declined due to insufficient funds",
+            message=f"Your request to send money to {reciever.full_name} has been declined due to insufficient funds",
         )
         decline_notification.save()
         return True

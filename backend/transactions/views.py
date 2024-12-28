@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Transaction
+from notifications.models import Notification
 from payment_methods.models import PaymentMethod, Accounts
 from .serializers import TransactionSerializer
 
@@ -33,6 +34,14 @@ class TransactionResolveRequest(APIView):
             sender = transaction.user_id
             recipient = transaction.recipient_id
             amount = transaction.amount
+
+            # Check if action is accept
+            if request.data.get('action') == 'Decline':
+                transaction.status = 'Declined'
+                transaction.description = 'Request declined'
+                transaction.save()
+                Notification.declined_request_notification(recipient, sender.full_name)
+                return Response('Request declined', status=status.HTTP_200_OK)
             
             # Retrieve primary payment method
             try:
@@ -44,6 +53,8 @@ class TransactionResolveRequest(APIView):
 
             # Check if primary payment method exists
             if not primary_payment_method:
+                transaction.status = 'Failed'
+                transaction.save()
                 return Response('Primary payment method not found', status=status.HTTP_400_BAD_REQUEST)
             primary_payment_method_balance = Accounts.get_primary_account_balance(primary_payment_method.id)
 
@@ -52,6 +63,9 @@ class TransactionResolveRequest(APIView):
             if primary_payment_method_balance < amount:
                 transaction.status = 'Failed'
                 transaction.save()
+
+                # Send notification to sender
+                Notification.send_money_nosufficient_funds(sender, recipient)
                 return Response('Insufficient balance', status=status.HTTP_400_BAD_REQUEST)
             
             try:
@@ -82,10 +96,13 @@ class TransactionResolveRequest(APIView):
                     status='Success',
                     description='Request resolved'
                 )
+                recieve_transaction.save()
+                Notification.money_sent_recieve_notification(sender, recipient, amount)
                 return Response('Request resolved', status=status.HTTP_200_OK)
             else:
                 transaction.status = 'Failed'
                 transaction.save()
+
                 return Response('Transaction failed', status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response('Transaction is invalid', status=status.HTTP_400_BAD_REQUEST)

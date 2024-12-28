@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import PaymentMethod, Accounts
-from authentication.models import User
+from notifications.models import Notification
 import datetime
 
 class PaymentMethodSerializer(serializers.ModelSerializer):

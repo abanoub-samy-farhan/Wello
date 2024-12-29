@@ -51,3 +51,19 @@ export interface Transaction {
     state: 'Completed' | 'Pending' | 'Failed';
     balance: number;
   }
+
+
+// Notification interface
+
+export interface Notification {
+    id: string;
+    title: string;
+    notification_type: string;
+    message: string;
+    is_read: boolean;
+    created_at: Date;
+}
+
+export interface NotificationProps {
+    notification: Notification;
+}

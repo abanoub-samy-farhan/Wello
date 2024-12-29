@@ -7,6 +7,7 @@ import { BiSolidPurchaseTag } from "react-icons/bi";
 import { IoSend } from "react-icons/io5";
 import { BiTransfer } from "react-icons/bi";
 
+
 const useStyle = createStyles(({ prefixCls, css }) => ({
   linearGradientButton: css`
     &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
@@ -33,9 +34,16 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
   `,
 }));
 
-export function GetStartedButton() {
+export interface GetStartedButtonProps {
+  rel: string;
+}
+
+export function GetStartedButton({rel} : GetStartedButtonProps) {
   const { styles } = useStyle();
 
+  const handleOnClick = () => {
+    window.location.href = rel;
+  }
   return (
     <Button
       type="primary"
@@ -45,6 +53,7 @@ export function GetStartedButton() {
         background: "linear-gradient(135deg, #9b7ebd, #3b1e54)",
         padding: "20px 20px",
       }}
+      onClick={handleOnClick}
     >
       Get Started
     </Button>
@@ -52,17 +61,27 @@ export function GetStartedButton() {
 }
 
 export function LearnMoreButton() {
+
+  const handleOnClick = () => {
+    const aboutSection = document.getElementById('about');
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
   return (
     <button
       className="font-bold p2nd hover:text-black px-4 py-2 bg-transparent transition-colors duration-300 ease-in-out"
       style={{
         padding: "0 20px",
       }}
+      onClick={handleOnClick}
     >
       Learn More
     </button>
   );
 }
+
 
 export function SignInButton() {
   const { styles } = useStyle();

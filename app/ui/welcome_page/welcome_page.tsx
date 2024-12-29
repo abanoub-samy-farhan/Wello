@@ -6,6 +6,8 @@ import ContactUs from "./contact_us";
 import { GetStartedButton, LearnMoreButton } from "../buttons";
 
 export default function WelcomePage() {
+    // Request fetching here
+
     return (
         <>
             {/* Navbar */}
@@ -22,7 +24,7 @@ export default function WelcomePage() {
                             </p>
                         </div>
                         <div className="flex flex-row gap-4 justify-center md:justify-start">
-                            <GetStartedButton />
+                            <GetStartedButton rel="auth/sign_up"/>
                             <LearnMoreButton />
                         </div>
                     </div>

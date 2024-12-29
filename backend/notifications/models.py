@@ -17,7 +17,7 @@ Notificaiton types:
 class Notification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=2
+    title = models.CharField(max_length=255)
     notification_type = models.CharField(max_length=255)
     message = models.TextField()
     is_read = models.BooleanField(default=False)

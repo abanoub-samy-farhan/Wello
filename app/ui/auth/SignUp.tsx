@@ -1,8 +1,45 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import { useState } from 'react'; 
+
 
 const SignUp: React.FC = () => {
+  const [emailerror, setEmailError] = useState(false);
+  const [phoneerror, setPhoneError] = useState(false);
+  const handleSignUp = async (event) => {
+    event.preventDefault();
+    setEmailError(false);
+    setPhoneError(false);
+    const response = await fetch('http://localhost:8000/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        full_name: event.target.full_name.value,
+        email: event.target.email.value,
+        phone_number: event.target.phone.value,
+        password: event.target.password.value
+      }),
+    }).then((response) => {
+      if (response.ok){
+          
+      }
+      else {
+        response.json().then((data) => {
+          if (data.email){
+            setEmailError(true);
+          }
+          if (data.phone_number){
+            setPhoneError(true);
+          }
+        })
+      }
+    }).catch((error) => {
+      console.error('Error:', error);
+    })
+  }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-primary4 text-primary1">
       <div className="bg-white shadow-xl rounded-lg p-8 w-full max-w-md">
@@ -13,15 +50,14 @@ const SignUp: React.FC = () => {
         {/* Form Header */}
         <h2 className="text-3xl font-bold text-primary1 text-center mb-6 font-sans">Sign Up</h2>
         {/* Sign-Up Form */}
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSignUp}>
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-primary1">
               Full Name
             </label>
             <input
               type="text"
-              name="name"
-              id="name"
+              name="full_name"
               required
               className="mt-1 block w-full px-4 py-2 bg-primary4 border border-primary3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary2"
               placeholder="Your Full Name"
@@ -34,11 +70,24 @@ const SignUp: React.FC = () => {
             <input
               type="email"
               name="email"
-              id="email"
               required
               className="mt-1 block w-full px-4 py-2 bg-primary4 border border-primary3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary2"
               placeholder="you@example.com"
             />
+            {emailerror && <p className="text-red-500 text-xs mt-1">Email already exists</p>}
+          </div>
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-primary1">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              required
+              className="mt-1 block w-full px-4 py-2 bg-primary4 border border-primary3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary2"
+              placeholder="123-456-7890"
+            />
+            {phoneerror && <p className="text-red-500 text-xs mt-1">Phone number already exists</p>}
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-primary1">
@@ -47,7 +96,6 @@ const SignUp: React.FC = () => {
             <input
               type="password"
               name="password"
-              id="password"
               required
               className="mt-1 block w-full px-4 py-2 bg-primary4 border border-primary3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary2"
               placeholder="********"
@@ -60,7 +108,6 @@ const SignUp: React.FC = () => {
             <input
               type="password"
               name="confirm-password"
-              id="confirm-password"
               required
               className="mt-1 block w-full px-4 py-2 bg-primary4 border border-primary3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary2"
               placeholder="********"

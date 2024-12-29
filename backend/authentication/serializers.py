@@ -12,6 +12,15 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         user = User(**validated_data)
+
+        # Validating that the email is unique
+        if User.objects.filter(email=user.email).exists():
+            raise serializers.ValidationError("Email already exists")
+        
+        # Validating that the phone number is unique
+        if User.objects.filter(phone_number=user.phone_number).exists():
+            raise serializers.ValidationError("Phone number already exists")
+        
         if password is not None:
             user.set_password(password)
         user.save()

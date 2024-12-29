@@ -107,7 +107,7 @@ export default function DashboardNavBar() {
                     >
                         <img src="/dashboard_notification_icon.png.png" alt="Notification" className="h-8" />
                         <Link
-                            href="/dashboard/notification"
+                            href="/dashboard/notifications"
                             className="whitespace-nowrap md:opacity-0 
                             md:group-hover:opacity-100 transition-opacity duration-250 ease-in-out"
                         >

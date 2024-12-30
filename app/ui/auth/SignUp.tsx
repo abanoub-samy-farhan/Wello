@@ -24,7 +24,7 @@ const SignUp: React.FC = () => {
       }),
     }).then((response) => {
       if (response.ok){
-          
+          window.location.href = '/auth/verify';
       }
       else {
         response.json().then((data) => {

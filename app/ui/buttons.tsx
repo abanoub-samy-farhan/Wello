@@ -82,6 +82,22 @@ export function LearnMoreButton() {
   );
 }
 
+export function GoToDashboardButton() {
+
+  const handleOnClick = () => {
+    window.location.href = "/dashboard";
+  }
+
+  return (
+    <button
+      className="font-bold p2nd hover:text-black bg-transparent transition-colors duration-300 ease-in-out"
+      onClick={handleOnClick}
+    >
+      Go to Dashboard
+    </button>
+  );
+}
+
 
 export function SignInButton() {
   const { styles } = useStyle();
@@ -94,6 +110,7 @@ export function SignInButton() {
         background: "linear-gradient(200deg, #9b7ebd, #3b1e54)",
         padding: "20px 20px",
       }}
+      onClick={() => {window.location.href = "/auth/sign_up";}}
     >
       Sign Up
     </Button>

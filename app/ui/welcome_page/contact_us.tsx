@@ -1,6 +1,6 @@
 export default function ContactUs() {
     return (
-        <section className="mt-36 p-8 md:p-20 h-auto w-full overflow-hidden bg-gray-50 flex flex-col md:flex-row gap-12 p4th-bg">
+        <section id="contact_us" className="mt-36 p-8 md:p-20 h-auto w-full overflow-hidden bg-gray-50 flex flex-col md:flex-row gap-12 p4th-bg">
             {/* Header */}
             <div className="flex flex-col gap-4 items-center md:items-start w-full md:w-1/2 text-center md:text-left">
                 <p className="text-lg text-gray-600 leading-relaxed">

@@ -2,12 +2,38 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import './dashboard.css';
+import { useEffect } from 'react';
+import { checkSignedIn } from '@/app/utils/fetches';
 
 export default function DashboardNavBar() {
     const [active, setActive] = useState('Home');
-    const notifications = 10;
+    const [notifications, setNotifications] = useState(0);
     const [open, setOpen] = useState(false);
+    
+    useEffect(() => {
+            checkSignedIn().then((res) => {
+                if (!res) {
+                    window.location.href = '/auth/sign_in';   
+                }
+            });
+        }, []);
 
+    const handleSignOut = async () => {
+        const resonse = await fetch('http://localhost:8000/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+        }).then((res) => {
+            if (res.status === 200) {
+                console.log('Signed Out');
+            }
+        });
+    }
+
+    
     return (
         <nav className={`group bg-gray-200 w-full md:w-20 md:hover:w-56 transition-all 
         duration-250 ease-in-out md:h-screen 
@@ -15,7 +41,9 @@ export default function DashboardNavBar() {
         z-10 md:z-20 overflow-hidden ${open ? 'h-screen' : 'h-fit'}`}>
             {/* Logo and Header */}
             <div className="hidden md:flex flex-row md:flex-col items-center justify-center py-5 w-full
-            border-b-2 border-opacity-20 border-primary1">
+            border-b-2 border-opacity-20 border-primary1 cursor-pointer"
+            onClick={() => window.location.href = '/'}
+            >
                 <img src="/Wello%20Logo.png" alt="Logo" className="h-10" />
                 <h1 className="text-2xl font-bold p-1 transition-opacity duration-250 ease-in-out">
                     Wello
@@ -122,13 +150,14 @@ export default function DashboardNavBar() {
             </ul>
             {/* Sign Out */}
             <div className=" absolute mt-5 md:mt-20 md:border-t-2 md:border-primary1 md:border-opacity-20 w-full">
-                <div className={`flex items-center overflow-hidden gap-2 pl-5 py-4 
+                <div className={`flex items-center overflow-hidden gap-2 pl-5 py-4  cursor-pointer
                 hover:bg-red-500 hover:text-white p-1 transition-all duration-250 ease-in-out font-bold`}>
                     <img src="/logout_icon.png" alt="Sign Out" className="h-5 w-fit" />
                     <Link
-                        href="/dashboard/signout"
+                        href="/auth/sign_in"
                         className="whitespace-nowrap md:opacity-0 
                         md:group-hover:opacity-100 transition-opacity duration-250 ease-in-out"
+                        onClick={handleSignOut}
                     >
                         Sign Out
                     </Link>

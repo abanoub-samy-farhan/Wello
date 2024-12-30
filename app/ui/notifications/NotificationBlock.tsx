@@ -16,7 +16,7 @@ const NotificationBlock: React.FC<NotificationProps> = ({ notification }) => {
                 </div>
                 <div>
                     <p className="text-xs">{notification.notification_type}</p>
-                    <p className='text-xs text-gray-500'>{notification.created_at.toLocaleDateString()}</p>
+                    <p className='text-xs text-gray-500'>{notification.created_at}</p>
                 </div>
                 <p className='text-md'>{notification.message}</p>
             </div>

@@ -48,6 +48,7 @@ class Accounts(models.Model):
         accounts = Accounts.objects.filter(user_id=user_id)
         total_balance = 0
         for account in accounts:
+            print(account.balance)
             total_balance += account.balance
         return total_balance
 
@@ -62,6 +63,7 @@ class Accounts(models.Model):
     @staticmethod
     def top_up_account(payment_method_id, amount):
         try:
+            print(payment_method_id)
             account = Accounts.objects.get(payment_method_id=payment_method_id)
             account.balance += amount
             account.save()

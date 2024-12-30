@@ -8,9 +8,13 @@ class TransactionSerializer(serializers.ModelSerializer):
         model = Transaction
         fields = '__all__'
         extra_kwargs = {
-            'status': {'read_only': True},
-            'created_at': {'read_only': True},
-            'updated_at': {'read_only': True},
+            'status': {'read_only': True, 'required': False},
+            'created_at': {'read_only': True, 'required': False},
+            'updated_at': {'read_only': True, 'required': False},
+            'balance': {'read_only': True, 'required': False},
+            'description': {'read_only': True, 'required': False},
+            'recipient_id': {'required': False},
+            'user_id': {'required': False}
         }
 
     def create(self, validated_data):
@@ -20,6 +24,8 @@ class TransactionSerializer(serializers.ModelSerializer):
             primary_payment_method = PaymentMethod.objects.get(user_id=user.id, is_primary=True)
         except PaymentMethod.DoesNotExist:
             primary_payment_method = None
+        
+        print(primary_payment_method)
         try:
             secondary_payment_method = PaymentMethod.objects.get(user_id=user.id, is_primary=False)
         except PaymentMethod.DoesNotExist:
@@ -29,10 +35,8 @@ class TransactionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Primary payment method not found')
         if transaction_type == 'Purchase':
             amount = validated_data.get('amount')
-            print(amount)
             primary_payment_method_balance = Accounts.\
                 get_primary_account_balance(primary_payment_method.id)
-            print(primary_payment_method_balance)
             if primary_payment_method_balance < amount:
                 if Accounts.get_balance(user.id) < amount:
                     raise serializers.ValidationError('Insufficient balance in both accounts')
@@ -49,7 +53,7 @@ class TransactionSerializer(serializers.ModelSerializer):
                             user_id=user,
                             title="Purchase Proceeded Successfully",
                             notification_type="Purchase",
-                            message=f"You have made a purchase of ${amount} successfully from both accounts",
+                            message=f"You have made a purchase of ${amount} successfully from {validated_data['company']}",
                         )
                         return transaction
                     else:
@@ -79,9 +83,9 @@ class TransactionSerializer(serializers.ModelSerializer):
             if primary_payment_method_balance < amount:
                 raise serializers.ValidationError('Insufficient balance for making transfer')
             else:
+                recipient_primary_payment_method = PaymentMethod.objects.get(user_id=recipient.id, is_primary=True)
                 confirm_transaction_1 = Accounts.withdraw_from_account(primary_payment_method.id, amount)
-                confirm_transaction_2 = Accounts.top_up_account(PaymentMethod.objects.\
-                                                                get(user_id=recipient.id, is_primary=True).id, amount)
+                confirm_transaction_2 = Accounts.top_up_account(recipient_primary_payment_method.id, amount)
                 if confirm_transaction_1 and confirm_transaction_2:
                     validated_data['status'] = 'Success'
                     validated_data['description'] = 'Money sent to ' + recipient.full_name

@@ -2,7 +2,9 @@
 import React from 'react';
 import { FiMail } from 'react-icons/fi';
 
-const VerificationMessage: React.FC = () => {
+
+
+const VerificationMessage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-primary2 px-4">
       <div className="max-w-md bg-primary4 shadow-lg rounded-lg p-8 text-center">
@@ -27,3 +29,4 @@ const VerificationMessage: React.FC = () => {
 };
 
 export default VerificationMessage;
+

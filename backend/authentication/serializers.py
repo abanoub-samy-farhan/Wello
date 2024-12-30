@@ -6,7 +6,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
         extra_kwargs = {
-            'password': {'write_only': True},
+            'password': {'write_only': True, 'required': False},
+            'is_verified': {'required': False},
+            'is_active': {'required': False},
+            'address': {'required': False},
+            'phone_number': {'required': False},
             }
         
     def create(self, validated_data):
@@ -32,6 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
             plain_password = validated_data.pop('password')
             instance.set_password(plain_password)
         for key, value in validated_data.items():
+            print(key, value)
             setattr(instance, key, value)
         instance.save()
         return instance

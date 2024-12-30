@@ -12,6 +12,8 @@ export interface User {
     full_name: string;
     phone_number: string;
     is_suspended: boolean | false;
+    is_verified: boolean | false;
+    is_first_login: boolean | false;
 }
 
 export interface UserProps {
@@ -25,15 +27,14 @@ export interface UserListProps {
 // PaymentMethod interface
 
 export interface PaymentMethod {
-    payment_method_id: string;
-    currency: string;
+    payment_method_id?: string;
     user_id: string;
     provider: string;
-    is_primary: boolean;
-    expires_at: Date;
-    type: string;
-    balance?: number;
-    last_four: string;
+    is_primary: boolean | true;
+    expiry_date: string;
+    method_type: string;
+    card_number?: string;
+    balance?: number | 0;
 }
 
 export interface PaymentMethodProps {

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: 'A new banking system',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;

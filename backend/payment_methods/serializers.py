@@ -8,7 +8,13 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         model = PaymentMethod
         fields = '__all__'
         extra_kwargs = {
-            'card_number': {'write_only': True},
+            'card_number': {'required': False},
+            'paymnent_method_id': {'required': False},
+            'user_id': {'required': False},
+            'is_primary': {'required': False},
+            'expiry_date': {'required': False},
+            'provider': {'required': False},
+            'method_type': {'required': False}
         }
 
     def create(self, validated_data):
@@ -16,6 +22,7 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         provider = validated_data.pop('provider')
         
         # Validate the provider supported
+        print("I am here")
         if provider.lower() not in ['visa', 'mastercard', 'paypal', 'orange', 'vodafone']:
             raise serializers.ValidationError("Provider not supported")
         
@@ -24,29 +31,33 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         if len(payment_methods) > 0:
             raise serializers.ValidationError("User already has a payment method with this provider")
         
+
         # Validate the card number is found if the provider is visa or mastercard
+        print("I am here")
         if provider.lower() in ['visa', 'mastercard']:
             card_number = validated_data.get('card_number')
             if not card_number:
                 raise serializers.ValidationError("Card number is required")
-            if validated_data.get('method_type') not in ['credit', 'debit']:
+            
+            if validated_data.get('method_type').lower() not in ['credit', 'debit']:
                 raise serializers.ValidationError("Method type is invalid")
             if len(card_number) != 16:
                 raise serializers.ValidationError("Card number is invalid")
             
+            print("I am here")
             # Validate expiry date in formate MM/YY string
             expiry_date = validated_data.get('expiry_date')
             if not expiry_date:
+                print("I am here")
                 raise serializers.ValidationError("Expiry date is required")
-            expiry_date = expiry_date.split('/')
+            expiry_date = expiry_date.split('-')[-2:]
+
+            print(expiry_date)
             current_date = datetime.datetime.now().strftime("%m/%y").split('/')
             current_date[1] = current_date[1][-2:]
             if len(expiry_date) != 2:
                 raise serializers.ValidationError("Expiry date is invalid")
             elif len(expiry_date[0]) != 2 or len(expiry_date[1]) != 2:
-                raise serializers.ValidationError("Expiry date is invalid")
-            elif (expiry_date[0] < current_date[0] and expiry_date[1] <= current_date[1]) or \
-                (expiry_date[0] > '12' or expiry_date[1] < '20') or current_date[1] > expiry_date[1]:
                 raise serializers.ValidationError("Expiry date is invalid")
             
         if provider.lower() in ['orange', 'vodafone']:
@@ -102,3 +113,8 @@ class AccountsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Accounts
         fields = '__all__'
+        extra_kwargs = {
+            'payment_method_id': {'required': False},
+            'user_id': {'required': False},
+            'balance': {'required': False}
+        }

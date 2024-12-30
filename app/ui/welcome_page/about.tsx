@@ -19,7 +19,7 @@ export default function About() {
                 </div>
             </div>
             {/* Features listed */}
-            <div className="flex flex-col items-center gap-16 w-full border-t-2 py-20 p2nd-bg py-20">
+            <div id="features" className="flex flex-col items-center gap-16 w-full border-t-2 py-20 p2nd-bg py-20">
                 <h1 className="text-4xl md:text-6xl font-extrabold text-white">Key Features</h1>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 w-full px-6 md:px-12">
                     {/* Feature: Transaction History */}

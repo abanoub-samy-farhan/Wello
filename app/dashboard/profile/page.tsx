@@ -1,23 +1,35 @@
 // /app/dashboard/profile/page.tsx
-
+'use client'
 import React from 'react';
+import {useState, useEffect} from 'react';
 import ProfileHeader from '../../ui/private_profile/ProfileHeader';
 import ProfileDetails from '../../ui/private_profile/ProfileDetails';
 import ProfileActions from '../../ui/private_profile/ProfileActions';
-
-const userData = {
-  fullName: 'Abdulrahman Mahmoud Riyad',
-  email: 'abdo@django.backend',
-  phoneNumber: '+20 111 364 3894',
-  address: '20 B2, Spooky Dorms, Borg El-Arab, Alexandria, Egypt',
-};
+import {User} from '../../interfaces';
+import { fetchUser } from '@/app/utils/fetches';
 
 const ProfilePage: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  useEffect(() =>{
+    async function fetchData() {
+      const fetchedUser = await fetchUser();
+      setUser(fetchedUser);
+      console.log("fetchedUser", fetchedUser);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  
   return (
     <div className="bg-primary4 min-h-screen">
-      <ProfileHeader userName={userData.fullName} />
+      <ProfileHeader userName={user.full_name} />
       <main>
-        <ProfileDetails user={userData} />
+        <ProfileDetails user={user} />
         <ProfileActions />
       </main>
     </div>

@@ -1,13 +1,35 @@
 'use client';
 import React, { useState } from 'react';
+import { MakePurchase } from '@/app/utils/fetches';
+import {message } from 'antd';
 
 const PurchaseForm: React.FC = () => {
   const [company, setCompany] = useState('Noon');
-  const [itemId, setItemId] = useState('');
+  const [itemId, setItemId] = useState(0);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const success = () => {
+    messageApi.open({
+      type: 'success',
+      content: 'Good Boy mf',
+    });
+  };
+
+  const error = () => {
+    messageApi.open({
+      type: 'error',
+      content: 'Fuck you',
+    });
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
+    const sent = await MakePurchase(company, itemId);
+    if (sent) {
+      success();
+    }
+    else {
+      error();
+    }
     console.log({ company, itemId });
   };
 
@@ -15,6 +37,7 @@ const PurchaseForm: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg md:ml-20 p-10">
+      {contextHolder}
       <h2 className="text-2xl font-semibold text-center mb-6 text-primary1">
         Make a Purchase
       </h2>

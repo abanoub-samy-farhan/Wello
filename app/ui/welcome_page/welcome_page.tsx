@@ -2,16 +2,42 @@
 import "../general.css";
 import Navbar from "./navbar";
 import About from "./about";
+import { useEffect, useState } from "react";
 import ContactUs from "./contact_us";
-import { GetStartedButton, LearnMoreButton } from "../buttons";
+import { GetStartedButton, LearnMoreButton, GoToDashboardButton } from "../buttons";
+import { checkSignedIn } from "@/app/utils/fetches";
+import Loading from "../../loading";
+import ChatbotModal from '../chatbot/ChatbotModal';
+import { Popover, FloatButton } from "antd";
+import { BsRobot } from "react-icons/bs";
+
 
 export default function WelcomePage() {
     // Request fetching here
+    const [isSignedIn, setIsSignedIn] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [isChatOpen, setIsChatOpen] = useState(false);
+
+    useEffect(() => {
+        checkSignedIn().then((res) => {
+            if (res) {
+                setIsSignedIn(true);
+            }
+            else {
+                setIsSignedIn(false);   
+            }
+        });
+        setLoading(false);
+    }, []);
+
+    if (loading) {
+        return <Loading />;
+    }
 
     return (
         <>
             {/* Navbar */}
-            <Navbar />
+            <Navbar signedIn={isSignedIn}/>
             <section className="p-8 md:p-20 h-auto w-full overflow-hidden">
                 {/* Hero Section */}
                 <div className="mt-20 mb-36 flex flex-col md:flex-row items-center h-full w-full gap-8">
@@ -24,7 +50,8 @@ export default function WelcomePage() {
                             </p>
                         </div>
                         <div className="flex flex-row gap-4 justify-center md:justify-start">
-                            <GetStartedButton rel="auth/sign_up"/>
+                            
+                            {!isSignedIn ? <GetStartedButton rel={'/auth/sign_up'} /> : <GoToDashboardButton />}
                             <LearnMoreButton />
                         </div>
                     </div>
@@ -32,11 +59,17 @@ export default function WelcomePage() {
                         Content for advertising the website
                     </div>
                 </div>
+                <ChatbotModal isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}/>
             </section>
             {/* About Section */}
             <About />
             {/* Contact Us Section */}
             <ContactUs />
+            <Popover placement="left" content="AI Customer Support" title="" trigger="hover">
+                <FloatButton icon={<BsRobot className='hover:text-purple-900'/>} className='shadow-4' onClick={
+                    () => setIsChatOpen(!isChatOpen)
+                }/>
+            </Popover>
         </>
     );
 }

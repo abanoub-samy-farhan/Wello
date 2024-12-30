@@ -2,25 +2,19 @@
 
 'use client';
 import React from 'react';
-
-interface UserDetails {
-  userId: string; // Added 'userId' field
-  name: string;
-  email: string;
-  phoneNumber?: string;
-  address?: string;
-}
+import {User} from '../../interfaces'
 
 interface ProfileDetailsProps {
-  user: UserDetails;
+  user: User | null;
 }
 
 const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user }) => {
+  console.log('User:', user);
   return (
     <section className="bg-white p-8 rounded-lg shadow-lg mx-auto max-w-2xl mt-8">
       {/* User's Name */}
       <h1 className="text-4xl font-bold text-center mb-4 text-primary1">
-        {user.name}
+        {user?.full_name}
       </h1>
       <h2 className="text-xl font-semibold mb-8 text-center text-primary1">
         Profile Details
@@ -32,7 +26,7 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user }) => {
             User ID:
           </span>
           <span className="text-lg font-semibold text-primary1">
-            {user.userId}
+            {user?.user_id}
           </span>
         </div>
         {/* Email */}
@@ -41,22 +35,22 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user }) => {
             Email:
           </span>
           <span className="text-lg font-semibold text-primary1">
-            {user.email}
+            {user?.email}
           </span>
         </div>
         {/* Phone Number */}
-        {user.phoneNumber && (
+        {user?.phone_number && (
           <div className="flex flex-col sm:flex-row sm:justify-between">
             <span className="text-lg font-medium text-primary1">
               Phone:
             </span>
             <span className="text-lg font-semibold text-primary1">
-              {user.phoneNumber}
+              {user?.phone_number}
             </span>
           </div>
         )}
         {/* Address */}
-        {user.address && (
+        {user?.address && (
           <div className="flex flex-col sm:flex-row sm:justify-between">
             <span className="text-lg font-medium text-primary1">
               Address:

@@ -5,11 +5,16 @@ import { ExclamationCircleOutlined } from '@ant-design/icons';
 const ProfileHeader: React.FC = () => {
   return (
     <header className="bg-primary4 text-primary1">
-      <div className="container mx-auto flex items-center justify-between px-4 py-4">
+      <div className="container mx-auto flex items-center justify-between px-4 py-4 cursor-pointer"
+      onClick={()=>{
+        window.location.href = '/'
+      }}
+      >
         {/* Logo and 'Wello' Text */}
         <div className="flex items-center">
           {/* Added a background to enhance logo visibility */}
-          <div>
+          <div 
+          >
             <img
               src="/WelloLogo.png"
               alt="Logo"

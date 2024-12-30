@@ -2,20 +2,47 @@
 
 'use client';
 import React, { useState } from 'react';
+import { MoneyTransfer } from '@/app/utils/fetches';
+import { message } from 'antd';
 
 const TransferForm: React.FC = () => {
   const [userId, setUserId] = useState('');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(0);
   const [transferType, setTransferType] = useState<'Send' | 'Request'>('Send');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const success = () => {
+    messageApi.open({
+      type: 'success',
+      content: 'Money transfer successfully completed',
+    });
+  };
+
+  const error = () => {
+    messageApi.open({
+      type: 'error',
+      content: 'An error occurred while transferring money, please try again later',
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission logic here
+    const sent = await MoneyTransfer(userId, transferType, amount);
+    console.log(sent);
+    if (sent) {
+      success();
+    } else {
+      error();
+    }
+
     console.log({ userId, amount, transferType });
   };
 
   return (
     <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg md:ml-20 p-10">
+      {contextHolder}
       <h2 className="text-2xl font-semibold text-center mb-6 text-primary1">
         {transferType} Money
       </h2>

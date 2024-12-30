@@ -1,8 +1,10 @@
-import { useState } from "react";
-import { SignInButton } from "../buttons";
+import { useState, useEffect } from "react";
+import { SignInButton, GoToDashboardButton } from "../buttons";
 import Link from "next/link";
+import { isSignedIn } from "@/app/utils/fetches";
+import Loading from "../../loading";
 
-export default function Navbar() {
+export default function Navbar(signedIn) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
@@ -17,13 +19,25 @@ export default function Navbar() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex flex-row justify-between items-center p-4 gap-4">
-                <div className="p1st hover:text-gray-400 transition duration-200 ease-in-out">
-                    Features
-                </div>
-                <div className="p1st hover:text-gray-400 transition duration-200 ease-in-out">
+                <div className="p1st hover:text-gray-400 transition duration-200 ease-in-out cursor-pointer"
+                onClick={() =>{
+                    document.getElementById('about').scrollIntoView({behavior: 'smooth'});
+                }}
+                >
                     About
                 </div>
-                <div className="p1st hover:text-gray-400 transition duration-200 ease-in-out">
+                <div className="p1st hover:text-gray-400 transition duration-200 ease-in-out cursor-pointer"
+                onClick={() =>{
+                    document.getElementById('features').scrollIntoView({behavior: 'smooth'});
+                }}
+                >
+                    Features
+                </div>
+                <div className="p1st hover:text-gray-400 transition duration-200 ease-in-out cursor-pointer"
+                onClick={() =>{
+                    document.getElementById('contact_us').scrollIntoView({behavior: 'smooth'});
+                }}
+                >
                     <strong>Contact Us</strong>
                 </div>
             </div>
@@ -58,33 +72,42 @@ export default function Navbar() {
                 }`}
             >
                 <div
-                    className="p1st hover:text-gray-400 transition duration-200 ease-in-out py-2 w-full justify-center text-center"
-                    onClick={() => setIsMenuOpen(false)}
+                    className="p1st hover:text-gray-400 transition duration-200 ease-in-out py-2 w-full justify-center text-center cursor-pointer"
+                    onClick={() =>{
+                        document.getElementById('about').scrollIntoView({behavior: 'smooth'});
+                        setIsMenuOpen(false);
+                    }}
                 >
                     About
                 </div>
                 <div
-                    className="p1st hover:text-gray-400 transition duration-200 ease-in-out py-2 w-full justify-center text-center"
-                    onClick={() => setIsMenuOpen(false)}
+                    className="p1st hover:text-gray-400 transition duration-200 ease-in-out py-2 w-full justify-center text-center cursor-pointer"
+                    onClick={() => {
+                        document.getElementById('features').scrollIntoView({behavior: 'smooth'});
+                        setIsMenuOpen(false);
+                    }}
                 >
-                    Terms of Use
+                    Features
                 </div>
                 <div
-                    className="p1st hover:text-gray-400 transition duration-200 ease-in-out py-2 w-full justify-center text-center"
-                    onClick={() => setIsMenuOpen(false)}
+                    className="p1st hover:text-gray-400 transition duration-200 ease-in-out py-2 w-full justify-center text-center cursor-pointer"
+                    onClick={() => {
+                        document.getElementById('contact_us').scrollIntoView({behavior: 'smooth'});
+                        setIsMenuOpen(false);
+                    }}
                 >
                     <strong>Contact Us</strong>
                 </div>
                 {/* Divider */}
                 <div className="w-full h-px bg-gray-200 my-2" />
                 <div className="mt-4 w-full justify-center text-center">
-                    <SignInButton />
+                    {!signedIn.signedIn ? <SignInButton /> : <GoToDashboardButton />}
                 </div>
             </div>
 
             {/* Sign In Button for Desktop */}
             <div className="hidden md:block mr-4">
-                <SignInButton />
+                {!signedIn.signedIn ? <SignInButton /> : <GoToDashboardButton />}
             </div>
         </nav>
     );

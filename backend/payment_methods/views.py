@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import PaymentMethod
+from .models import PaymentMethod, Accounts
 from authentication.models import User
 from .serializers import PaymentMethodSerializer, AccountsSerializer
 
@@ -16,7 +16,13 @@ class PaymentGetByUserId(APIView):
     def get(self, request):
         user_id = request.user_id
         payment_methods = PaymentMethod.objects.filter(user_id=user_id)
-        serializer = PaymentMethodSerializer(payment_methods, many=True)
+        accounts = Accounts.objects.filter(user_id=user_id)
+        serializer2 = AccountsSerializer(accounts, many=True)
+        serializer = PaymentMethodSerializer(payment_methods, many=True)        
+        for payment_account in serializer2.data:
+            for payment_method in serializer.data:
+                if str(payment_account['payment_method_id']) == str(payment_method['id']):
+                    payment_method['balance'] = payment_account['balance']
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
@@ -48,6 +54,8 @@ class PaymentUpdate(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+
 class PaymentCreate(APIView):
     def post(self, request):
         user_id = request.user_id
@@ -58,6 +66,8 @@ class PaymentCreate(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+
 class PaymentSwitchPrimaryMethod(APIView):
     def post(self, request):
         user_id = request.user_id

@@ -11,7 +11,7 @@ from .serializers import TransactionSerializer
 class TransactionByUserId(APIView):
     def get(self, request):
         user_id = request.user_id
-        transactions = Transaction.objects.filter(user_id=user_id)
+        transactions = Transaction.objects.filter(user_id=user_id).order_by('-created_at')
         serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

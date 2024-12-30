@@ -10,7 +10,7 @@ interface PaymentMethodEntryProps {
 
 const PaymentMethodEntry: React.FC<PaymentMethodEntryProps> = ( {paymentMethod, handleSubmit} ) => {
     return (
-        <div>
+        <div className="flex flex-col space-y-6">
                 <AddMethodForm paymentMethod={paymentMethod} handleSubmit={handleSubmit} />
         </div>
 

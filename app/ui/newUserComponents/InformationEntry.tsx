@@ -13,8 +13,9 @@ const InformationEntry: React.FC<InformationEntryProps> = ({ user, handleSubmit 
     full_name: user.full_name || '',
     phone_number: user.phone_number || '',
     is_suspended: user.is_suspended || false,
-    address: '', 
+    address: user.address || '', 
   });
+  console.log(formData);
 
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -8,6 +8,7 @@ class User(AB):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=11, unique=True)
+    address = models.CharField(max_length=255, default=None, null=True)
     email = models.EmailField(max_length=100, unique=True)
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -43,9 +44,5 @@ class UserSession(models.Model):
     is_active = models.BooleanField(default=True)
 
 class Verification_Token(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.EmailField(max_length=100, default=None)
     token = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
-    expriy_at = models.DateTimeField()
-    is_active = models.BooleanField(default=True)
-

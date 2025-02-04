@@ -22,5 +22,5 @@ urlpatterns = [
     path('user/', UserCRUD.as_view(), name='user_crud'),
     path('user/<uuid:id>', UserGetById.as_view(), name='user_crud'),
     path('auth/verify/', VerifyEmail.as_view(), name='verify_email'),
-    path('is-verified', isVerfied.as_view(), name='is_verfied'),
+    path('auth/is-verified', isVerfied.as_view(), name='is_verfied'),
 ]

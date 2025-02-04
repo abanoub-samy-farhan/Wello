@@ -6,10 +6,9 @@ from .serializers import UserSerializer
 from .models import User
 from .models import UserSession, Verification_Token
 from notifications.utils import EmailRouter
-from decouple import config
-import jwt, datetime
-import pyotp
-
+from datetime import datetime, timedelta
+from jwt import encode as jwt_encode
+import os
 
 class RegisterView(APIView):
     def post(self, request):
@@ -17,7 +16,11 @@ class RegisterView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            email_router = EmailRouter(config('EMAIL_HOST'), config('EMAIL_PORT'), config('EMAIL_USERNAME'), config('EMAIL_PASSWORD'))
+            email_router = EmailRouter(
+                os.getenv('EMAIL_HOST'), 
+                os.getenv('EMAIL_PORT'), 
+                os.getenv('EMAIL_USERNAME'), 
+                os.getenv('EMAIL_PASSWORD'))
             email_router.send_verification_link(serializer.data['email'])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -39,15 +42,15 @@ class LoginView(APIView):
 
         payload = {
             'id': str(user.id),
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=8),
-            'iat': datetime.datetime.utcnow()
+            'exp': datetime.utcnow() + timedelta(hours=1),
+            'iat': datetime.utcnow()
         }
 
-        token = jwt.encode(payload, config('JWT_SECRET'), algorithm='HS256')
+        token = jwt_encode(payload, os.getenv('JWT_SECRET'), algorithm='HS256')
         new_session = UserSession(
             user_id=user,
             jwt_token=token,
-            expriy_at=datetime.datetime.utcnow() + datetime.timedelta(seconds=60)
+            expriy_at=datetime.utcnow() + timedelta(hours=1)
         )
         new_session.save()
 
@@ -56,12 +59,9 @@ class LoginView(APIView):
             key='jwt',
             value=token,
             httponly=True,
-            max_age=60 * 60,
+            max_age=3600,
             path='/',
         )
-        response.data = {
-            'jwt': token
-        }
 
         serializer = UserSerializer(user)
         response.data['user'] = serializer.data
@@ -148,7 +148,7 @@ class isVerfied(APIView):
         user_id = request.user_id
         user = User.objects.get(id=user_id)
         if user.is_verified:
-            return Response(status=status.HTTP_200_OK)
+            return Response({"message": True},status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class IsSignedIn(APIView):

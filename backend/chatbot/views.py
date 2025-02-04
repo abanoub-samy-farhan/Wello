@@ -7,12 +7,12 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 import  openai
-from decouple import config
+import os
 
 # Initialize logging
 logger = logging.getLogger(__name__)
 
-openai.api_key = config('OPEN_AI_KEY')
+openai.api_key = os.getenv('OPEN_AI_KEY')
 
 @csrf_exempt
 def chatbot_view(request):

@@ -6,7 +6,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Transaction
 from notifications.models import Notification
-from payment_methods.models import PaymentMethod, Accounts
+from payment_methods.models import PaymentMethod, Account
 from .serializers import TransactionSerializer
 
 
@@ -64,8 +64,6 @@ class CreateTransaction(APIView):
     def post(self, request):
         """Create a new transaction.
         
-        The transaction type must be one of: PURCHASE, SEND
-        For SEND transactions, recipient_id is required.
         """
         try:
             request.data['user_id'] = request.user_id
@@ -81,7 +79,7 @@ class CreateTransaction(APIView):
         except ValidationError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'error': 'An unexpected error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class TransactionResolveRequest(APIView):
     """View for resolving money request transactions."""

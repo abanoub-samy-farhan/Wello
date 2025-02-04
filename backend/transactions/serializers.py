@@ -3,7 +3,7 @@ from django.db import transaction
 from rest_framework import serializers
 from .models import Transaction
 from notifications.models import Notification
-from payment_methods.models import PaymentMethod, Accounts
+from payment_methods.models import PaymentMethod, Account
 
 class TransactionSerializer(serializers.ModelSerializer):
     """Serializer for handling Transaction model instances.    
@@ -19,7 +19,6 @@ class TransactionSerializer(serializers.ModelSerializer):
             'balance': {'read_only': True},
             'description': {'read_only': True},
             'recipient_id': {'required': False},
-            'user_id': {'required': False}
         }
     
     def validate(self, data):
@@ -42,17 +41,17 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     def _process_purchase(self, user, amount, primary_method, secondary_method, validated_data):
         """Process a purchase transaction using available payment methods."""
-        primary_balance = Accounts.get_primary_account_balance(primary_method.id)
+        primary_balance = Account.get_primary_account_balance(primary_method.id)
         
         if primary_balance >= amount:
             # Use primary account only
-            if Accounts.withdraw_from_account(primary_method.id, amount):
+            if Account.withdraw_from_account(primary_method.id, amount):
                 return self._create_successful_purchase(user, amount, validated_data)
-        elif Accounts.get_balance(user.id) >= amount and secondary_method:
+        elif Account.get_balance(user.id) >= amount and secondary_method:
             # Split between primary and secondary accounts
             with transaction.atomic():
-                if (Accounts.withdraw_from_account(primary_method.id, primary_balance) and
-                    Accounts.withdraw_from_account(secondary_method.id, amount - primary_balance)):
+                if (Account.withdraw_from_account(primary_method.id, primary_balance) and
+                    Account.withdraw_from_account(secondary_method.id, amount - primary_balance)):
                     return self._create_successful_purchase(user, amount, validated_data)
         
         raise serializers.ValidationError('Insufficient balance or transaction failed')
@@ -64,13 +63,13 @@ class TransactionSerializer(serializers.ModelSerializer):
         except PaymentMethod.DoesNotExist:
             raise serializers.ValidationError('Recipient has no valid payment method')
         
-        primary_balance = Accounts.get_primary_account_balance(primary_method.id)
+        primary_balance = Account.get_primary_account_balance(primary_method.id)
         if primary_balance < amount:
             raise serializers.ValidationError('Insufficient balance for transfer')
         
         with transaction.atomic():
-            if (Accounts.withdraw_from_account(primary_method.id, amount) and
-                Accounts.top_up_account(recipient_method.id, amount)):
+            if (Account.withdraw_from_account(primary_method.id, amount) and
+                Account.top_up_account(recipient_method.id, amount)):
                 return self._create_successful_transfer(user, recipient, amount, validated_data)
         
         raise serializers.ValidationError('Transfer failed')
@@ -80,7 +79,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         transaction_data = {
             **validated_data,
             'status': Transaction.TransactionStatus.SUCCESS,
-            'balance': Accounts.get_balance(user.id),
+            'balance': Account.get_balance(user.id),
             'description': f'Purchase of ${amount} from {validated_data.get("company", "unknown vendor")}'
         }
         
@@ -100,7 +99,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         sender_transaction = Transaction.objects.create(
             **validated_data,
             status=Transaction.TransactionStatus.SUCCESS,
-            balance=Accounts.get_balance(sender.id),
+            balance=Account.get_balance(sender.id),
             description=f'Money sent to {recipient.full_name}'
         )
         
@@ -112,7 +111,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             recipient_id=sender,
             status=Transaction.TransactionStatus.SUCCESS,
             description=f'Money received from {sender.full_name}',
-            balance=Accounts.get_balance(recipient.id)
+            balance=Account.get_balance(recipient.id)
         )
         
         # Create notifications
@@ -157,7 +156,5 @@ class TransactionSerializer(serializers.ModelSerializer):
             recipient = validated_data['recipient_id']
             return self._process_money_transfer(user, recipient, amount, primary_method, validated_data)
         else:
-            raise serializers.ValidationError('Invalid transaction type')
-
-                
+            raise serializers.ValidationError('Invalid transaction type')    
             

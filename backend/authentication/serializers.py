@@ -7,8 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
-            'is_verified': {'required': False},
-            'is_active': {'required': False},
+            'is_verified': {'read_only': True, 'required': False},
             'address': {'required': False},
             'phone_number': {'required': False},
             }
@@ -27,6 +26,9 @@ class UserSerializer(serializers.ModelSerializer):
         
         if password is not None:
             user.set_password(password)
+        else:
+            raise serializers.ValidationError("Password is required")
+        
         user.save()
         return user
         
@@ -36,7 +38,6 @@ class UserSerializer(serializers.ModelSerializer):
             plain_password = validated_data.pop('password')
             instance.set_password(plain_password)
         for key, value in validated_data.items():
-            print(key, value)
             setattr(instance, key, value)
         instance.save()
         return instance

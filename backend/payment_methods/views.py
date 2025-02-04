@@ -2,8 +2,9 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import PaymentMethod, Accounts
+from .models import PaymentMethod, Account
 from authentication.models import User
+import asyncio
 from .serializers import PaymentMethodSerializer, AccountsSerializer
 
 class PaymentGetAll(APIView):
@@ -16,7 +17,7 @@ class PaymentGetByUserId(APIView):
     def get(self, request):
         user_id = request.user_id
         payment_methods = PaymentMethod.objects.filter(user_id=user_id)
-        accounts = Accounts.objects.filter(user_id=user_id)
+        accounts = Account.objects.filter(user_id=user_id)
         serializer2 = AccountsSerializer(accounts, many=True)
         serializer = PaymentMethodSerializer(payment_methods, many=True)        
         for payment_account in serializer2.data:
@@ -71,7 +72,6 @@ class PaymentCreate(APIView):
 class PaymentSwitchPrimaryMethod(APIView):
     def post(self, request):
         user_id = request.user_id
-        print(user_id)
         user = User.objects.get(id=user_id)
         success = user.switch_primary_payment_method()
         if not success:

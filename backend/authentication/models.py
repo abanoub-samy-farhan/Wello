@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser as AB
 import uuid
-from decouple import config
 from payment_methods.models import PaymentMethod
 
 class User(AB):

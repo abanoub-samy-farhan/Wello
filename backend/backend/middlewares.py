@@ -22,7 +22,6 @@ class JWTMiddleware(MiddlewareMixin):
             if not request.user_id:
                 return JsonResponse({'message': 'Email not verified'}, status=401)
         except jwt.ExpiredSignatureError:
-            # Remove the expired token
             response = JsonResponse({'message': 'Token expired'}, status=401)
             response.delete_cookie('jwt')
             return response

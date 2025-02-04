@@ -100,6 +100,7 @@ class UserGetById(APIView):
         user = User.objects.get(id=id)
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 class UserCRUD(APIView):
     def get(self, request):
         user_id = request.user_id
@@ -142,6 +143,13 @@ class VerifyEmail(APIView):
         except Verification_Token.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
+class isVerfied(APIView):
+    def get(self, request):
+        user_id = request.user_id
+        user = User.objects.get(id=user_id)
+        if user.is_verified:
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class IsSignedIn(APIView):
     def get(self, request):

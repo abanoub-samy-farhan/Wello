@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import PaymentMethod, Accounts
+from .models import PaymentMethod, Account
 from notifications.models import Notification
+
 import datetime
 
 class PaymentMethodSerializer(serializers.ModelSerializer):
@@ -21,19 +22,11 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         user = validated_data.get('user_id')
         provider = validated_data.pop('provider')
         
-        # Validate the provider supported
-        print("I am here")
         if provider.lower() not in ['visa', 'mastercard', 'paypal', 'orange', 'vodafone']:
             raise serializers.ValidationError("Provider not supported")
         
-        # Validate that the user has no methods with the same provider
-        payment_methods = PaymentMethod.objects.filter(user_id=user.id, provider=provider)
-        if len(payment_methods) > 0:
-            raise serializers.ValidationError("User already has a payment method with this provider")
-        
 
-        # Validate the card number is found if the provider is visa or mastercard
-        print("I am here")
+        # Validate Data for cards providers
         if provider.lower() in ['visa', 'mastercard']:
             card_number = validated_data.get('card_number')
             if not card_number:
@@ -44,22 +37,20 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
             if len(card_number) != 16:
                 raise serializers.ValidationError("Card number is invalid")
             
-            print("I am here")
-            # Validate expiry date in formate MM/YY string
             expiry_date = validated_data.get('expiry_date')
+            expiry_date = expiry_date.split('-')
             if not expiry_date:
-                print("I am here")
                 raise serializers.ValidationError("Expiry date is required")
-            expiry_date = expiry_date.split('-')[-2:]
 
-            print(expiry_date)
             current_date = datetime.datetime.now().strftime("%m/%y").split('/')
             current_date[1] = current_date[1][-2:]
             if len(expiry_date) != 2:
                 raise serializers.ValidationError("Expiry date is invalid")
             elif len(expiry_date[0]) != 2 or len(expiry_date[1]) != 2:
                 raise serializers.ValidationError("Expiry date is invalid")
-            
+        
+        
+        # Validate Data for mobile providers
         if provider.lower() in ['orange', 'vodafone']:
             phone_number = user.phone_number
             if not phone_number:
@@ -82,15 +73,17 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
             
         
         validated_data['provider'] = provider.lower()
+
         # Validate that the user has no primary payment method
         payment_methods = PaymentMethod.objects.filter(user_id=user.id, is_primary=True)
         if len(payment_methods) == 0:
             validated_data['is_primary'] = True
         payment_methods = PaymentMethod.objects.filter(user_id=user.id)
         if len(payment_methods) == 2:
-            raise serializers.ValidationError("Cannot add more than 2 payment methods")
+            raise serializers.ValidationError("Cannot add more than 2 payment methods for the same user")
         
         payment_method = PaymentMethod.objects.create(**validated_data)
+        account = Account.objects.create(payment_method_id=payment_method, user_id=user, balance=1000)
         return payment_method
     
     def update(self, instance, validated_data):
@@ -111,7 +104,7 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
 
 class AccountsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Accounts
+        model = Account
         fields = '__all__'
         extra_kwargs = {
             'payment_method_id': {'required': False},

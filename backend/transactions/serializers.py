@@ -1,122 +1,163 @@
+from decimal import Decimal
+from django.db import transaction
 from rest_framework import serializers
 from .models import Transaction
 from notifications.models import Notification
 from payment_methods.models import PaymentMethod, Accounts
 
 class TransactionSerializer(serializers.ModelSerializer):
+    """Serializer for handling Transaction model instances.    
+    """
+    
     class Meta:
         model = Transaction
         fields = '__all__'
         extra_kwargs = {
-            'status': {'read_only': True, 'required': False},
-            'created_at': {'read_only': True, 'required': False},
-            'updated_at': {'read_only': True, 'required': False},
-            'balance': {'read_only': True, 'required': False},
-            'description': {'read_only': True, 'required': False},
+            'status': {'read_only': True},
+            'created_at': {'read_only': True},
+            'updated_at': {'read_only': True},
+            'balance': {'read_only': True},
+            'description': {'read_only': True},
             'recipient_id': {'required': False},
             'user_id': {'required': False}
         }
+    
+    def validate(self, data):
+        """Validate transaction data before processing."""
+        transaction_type = data.get('transaction_type')
+        recipient = data.get('recipient_id')
+        user = data.get('user_id')
+        amount = data.get('amount')
+        
+        if not amount or amount <= 0:
+            raise serializers.ValidationError({'amount': 'Amount must be positive'})
+        
+        if transaction_type == Transaction.TransactionType.SEND:
+            if not recipient:
+                raise serializers.ValidationError({'recipient_id': 'Recipient is required for Send transactions'})
+            if recipient == user:
+                raise serializers.ValidationError({'recipient_id': 'Cannot send money to yourself'})
+        
+        return data
+
+    def _process_purchase(self, user, amount, primary_method, secondary_method, validated_data):
+        """Process a purchase transaction using available payment methods."""
+        primary_balance = Accounts.get_primary_account_balance(primary_method.id)
+        
+        if primary_balance >= amount:
+            # Use primary account only
+            if Accounts.withdraw_from_account(primary_method.id, amount):
+                return self._create_successful_purchase(user, amount, validated_data)
+        elif Accounts.get_balance(user.id) >= amount and secondary_method:
+            # Split between primary and secondary accounts
+            with transaction.atomic():
+                if (Accounts.withdraw_from_account(primary_method.id, primary_balance) and
+                    Accounts.withdraw_from_account(secondary_method.id, amount - primary_balance)):
+                    return self._create_successful_purchase(user, amount, validated_data)
+        
+        raise serializers.ValidationError('Insufficient balance or transaction failed')
+    
+    def _process_money_transfer(self, user, recipient, amount, primary_method, validated_data):
+        """Process a money transfer between users."""
+        try:
+            recipient_method = PaymentMethod.objects.get(user_id=recipient.id, is_primary=True)
+        except PaymentMethod.DoesNotExist:
+            raise serializers.ValidationError('Recipient has no valid payment method')
+        
+        primary_balance = Accounts.get_primary_account_balance(primary_method.id)
+        if primary_balance < amount:
+            raise serializers.ValidationError('Insufficient balance for transfer')
+        
+        with transaction.atomic():
+            if (Accounts.withdraw_from_account(primary_method.id, amount) and
+                Accounts.top_up_account(recipient_method.id, amount)):
+                return self._create_successful_transfer(user, recipient, amount, validated_data)
+        
+        raise serializers.ValidationError('Transfer failed')
+    
+    def _create_successful_purchase(self, user, amount, validated_data):
+        """Create a successful purchase transaction record."""
+        transaction_data = {
+            **validated_data,
+            'status': Transaction.TransactionStatus.SUCCESS,
+            'balance': Accounts.get_balance(user.id),
+            'description': f'Purchase of ${amount} from {validated_data.get("company", "unknown vendor")}'
+        }
+        
+        transaction = Transaction.objects.create(**transaction_data)
+        
+        Notification.objects.create(
+            user_id=user,
+            title='Purchase Successful',
+            notification_type='Purchase',
+            message=f'Purchase of ${amount} completed successfully'
+        )
+        
+        return transaction
+    
+    def _create_successful_transfer(self, sender, recipient, amount, validated_data):
+        """Create successful transfer transaction records for both parties."""
+        sender_transaction = Transaction.objects.create(
+            **validated_data,
+            status=Transaction.TransactionStatus.SUCCESS,
+            balance=Accounts.get_balance(sender.id),
+            description=f'Money sent to {recipient.full_name}'
+        )
+        
+        # Create recipient's transaction
+        Transaction.objects.create(
+            user_id=recipient,
+            amount=amount,
+            transaction_type=Transaction.TransactionType.RECEIVE,
+            recipient_id=sender,
+            status=Transaction.TransactionStatus.SUCCESS,
+            description=f'Money received from {sender.full_name}',
+            balance=Accounts.get_balance(recipient.id)
+        )
+        
+        # Create notifications
+        Notification.objects.create(
+            user_id=sender,
+            title='Money Sent',
+            notification_type='Transfer',
+            message=f'Successfully sent ${amount} to {recipient.full_name}'
+        )
+        
+        Notification.objects.create(
+            user_id=recipient,
+            title='Money Received',
+            notification_type='Transfer',
+            message=f'Received ${amount} from {sender.full_name}'
+        )
+        
+        return sender_transaction
 
     def create(self, validated_data):
-        transaction_type = validated_data.get('transaction_type')
-        user = validated_data.get('user_id')
-        try:
-            primary_payment_method = PaymentMethod.objects.get(user_id=user.id, is_primary=True)
-        except PaymentMethod.DoesNotExist:
-            primary_payment_method = None
+        """Create a new transaction."""
+        user = validated_data['user_id']
+        amount = validated_data['amount']
+        transaction_type = validated_data['transaction_type']
         
-        print(primary_payment_method)
         try:
-            secondary_payment_method = PaymentMethod.objects.get(user_id=user.id, is_primary=False)
+            with transaction.atomic():
+                primary_method = PaymentMethod.objects.select_for_update().get(
+                    user_id=user.id,
+                    is_primary=True
+                )
+                secondary_method = PaymentMethod.objects.select_for_update().filter(
+                    user_id=user.id,
+                    is_primary=False
+                ).first()
         except PaymentMethod.DoesNotExist:
-            secondary_payment_method = None
-
-        if not primary_payment_method:
-            raise serializers.ValidationError('Primary payment method not found')
-        if transaction_type == 'Purchase':
-            amount = validated_data.get('amount')
-            primary_payment_method_balance = Accounts.\
-                get_primary_account_balance(primary_payment_method.id)
-            if primary_payment_method_balance < amount:
-                if Accounts.get_balance(user.id) < amount:
-                    raise serializers.ValidationError('Insufficient balance in both accounts')
-                else:
-                    confirm_transaction_1 = Accounts.withdraw_from_account(primary_payment_method.id, primary_payment_method_balance)
-                    confirm_transaction_2 = Accounts.withdraw_from_account(secondary_payment_method.id, amount - primary_payment_method_balance)
-                    if confirm_transaction_1 and confirm_transaction_2:
-                        validated_data['status'] = 'Success'
-                        validated_data['balance'] = Accounts.get_balance(user.id)
-                        validated_data['description'] = 'Purchase made'
-                        transaction = Transaction.objects.create(**validated_data)
-
-                        Notification.objects.create(
-                            user_id=user,
-                            title="Purchase Proceeded Successfully",
-                            notification_type="Purchase",
-                            message=f"You have made a purchase of ${amount} successfully from {validated_data['company']}",
-                        )
-                        return transaction
-                    else:
-                        raise serializers.ValidationError('Transaction failed')
-            else:
-                confirm_transaction = Accounts.withdraw_from_account(primary_payment_method.id, amount)
-                if confirm_transaction:
-                    validated_data['status'] = 'Success'
-                    validated_data['balance'] = Accounts.get_balance(user.id)
-                    validated_data['description'] = 'Purchase made'
-                    transaction = Transaction.objects.create(**validated_data)
-                    Notification.objects.create(
-                            user_id=user,
-                            title="Purchase Proceeded Successfully",
-                            notification_type="Purchase",
-                            message=f"You have made a purchase of ${amount} successfully from primary account",
-                        )
-                    return transaction
-                else:
-                    raise serializers.ValidationError('Transaction failed')
-        elif transaction_type == 'Send':
-            recipient = validated_data.get('recipient_id')
-            if not recipient:
-                raise serializers.ValidationError('Recipient not found')
-            amount = validated_data.get('amount')
-            primary_payment_method_balance = Accounts.get_primary_account_balance(primary_payment_method.id)
-            if primary_payment_method_balance < amount:
-                raise serializers.ValidationError('Insufficient balance for making transfer')
-            else:
-                recipient_primary_payment_method = PaymentMethod.objects.get(user_id=recipient.id, is_primary=True)
-                confirm_transaction_1 = Accounts.withdraw_from_account(primary_payment_method.id, amount)
-                confirm_transaction_2 = Accounts.top_up_account(recipient_primary_payment_method.id, amount)
-                if confirm_transaction_1 and confirm_transaction_2:
-                    validated_data['status'] = 'Success'
-                    validated_data['description'] = 'Money sent to ' + recipient.full_name
-                    validated_data['balance'] = Accounts.get_balance(user.id)
-                    transaction_sender = Transaction.objects.create(**validated_data)
-                    transaction_recipient = Transaction.objects.create(user_id=recipient, amount=amount, transaction_type='Recieve', \
-                                                                       recipient_id=user, status='Success',\
-                                                                          description='Money received from ' + user.full_name, \
-                                                                            balance=Accounts.get_balance(recipient.id))
-                    
-                    # Making Notification for sender and reciever
-                    Notification.money_sent_recieve_notification(user, recipient, amount)
-                    return transaction_sender
-                else:
-                    raise serializers.ValidationError('Transaction failed')
-        elif transaction_type == 'Request':
-            recipient = validated_data.get('recipient_id')
-            amount = validated_data.get('amount')
-            recipient_primary_payment_method = PaymentMethod.objects.get(user_id=recipient.id, is_primary=True)
-            if not recipient_primary_payment_method:
-                raise serializers.ValidationError('Recipient primary payment method not found')
-            transaction_recipient = Transaction.objects.create(user_id=recipient, amount=amount, transaction_type='Request', \
-                                                               recipient_id=user, status='Pending',\
-                                                                  description='Money requested by ' + user.full_name, \
-                                                                    balance=Accounts.get_balance(recipient.id))
-            
-            # Making Notification for reciever of the request
-
-            Notification.money_request_notification(recipient, user, amount)
-            return transaction_recipient
+            raise serializers.ValidationError('No valid payment method found')
         
+        if transaction_type == Transaction.TransactionType.PURCHASE:
+            return self._process_purchase(user, amount, primary_method, secondary_method, validated_data)
+        elif transaction_type == Transaction.TransactionType.SEND:
+            recipient = validated_data['recipient_id']
+            return self._process_money_transfer(user, recipient, amount, primary_method, validated_data)
+        else:
+            raise serializers.ValidationError('Invalid transaction type')
 
                 
             

@@ -21,19 +21,14 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         user = validated_data.get('user_id')
         provider = validated_data.pop('provider')
         
-        # Validate the provider supported
-        print("I am here")
         if provider.lower() not in ['visa', 'mastercard', 'paypal', 'orange', 'vodafone']:
             raise serializers.ValidationError("Provider not supported")
         
-        # Validate that the user has no methods with the same provider
         payment_methods = PaymentMethod.objects.filter(user_id=user.id, provider=provider)
         if len(payment_methods) > 0:
             raise serializers.ValidationError("User already has a payment method with this provider")
         
 
-        # Validate the card number is found if the provider is visa or mastercard
-        print("I am here")
         if provider.lower() in ['visa', 'mastercard']:
             card_number = validated_data.get('card_number')
             if not card_number:

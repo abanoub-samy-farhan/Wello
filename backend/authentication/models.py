@@ -1,4 +1,5 @@
 from django.db import models
+from django.db import transaction
 from django.contrib.auth.models import AbstractBaseUser as AB
 import uuid
 from asgiref.sync import sync_to_async
@@ -22,19 +23,29 @@ class User(AB):
     
     def switch_primary_payment_method(self):
         try:
-            paymentmethods = PaymentMethod.objects.filter(user_id=self.id)
-            if paymentmethods.count() == 1:
-                raise Exception("User has only one payment method")
-            
-            for paymentmethod in paymentmethods:
-                if paymentmethod.is_primary:
-                    paymentmethod.is_primary = False
-                else:
-                    paymentmethod.is_primary = True
-                paymentmethod.save()
-            return True
+            with transaction.atomic():
+                payment_methods = PaymentMethod.objects.filter(user_id=self.id)
+
+                if payment_methods.count() == 1:
+                    raise Exception("User has only one payment method")
+
+                current_primary = payment_methods.filter(is_primary=True).first()
+
+                if current_primary:
+                    current_primary.is_primary = False
+                    current_primary.save()
+
+                new_primary = payment_methods.exclude(id=current_primary.id).first()
+                if new_primary:
+                    new_primary.is_primary = True
+                    new_primary.save()
+
+                return True
         except Exception as e:
+            print(f"Error: {e}")
             return False
+
+        
     
 
 class UserSession(models.Model):

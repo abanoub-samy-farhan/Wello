@@ -1,10 +1,14 @@
 from django.shortcuts import render
-from rest_framework.views import APIView
+from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
+
+
 from .models import PaymentMethod, Account
 from authentication.models import User
-import asyncio
+
+from adrf.views import APIView
+from asgiref.sync import sync_to_async
 from .serializers import PaymentMethodSerializer, AccountsSerializer
 
 class PaymentGetAll(APIView):
@@ -70,12 +74,19 @@ class PaymentCreate(APIView):
 
 
 class PaymentSwitchPrimaryMethod(APIView):
-    def post(self, request):
-        user_id = request.user_id
-        user = User.objects.get(id=user_id)
-        success = user.switch_primary_payment_method()
+    async def post(self, request):
+        user_id = request.data['user_id']
+
+        try:
+            user = await sync_to_async(User.objects.get)(id=user_id)
+        except User.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        success = await sync_to_async(user.switch_primary_payment_method)()
+
         if not success:
             return Response({"message": "Error happened while switching"}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(status=status.HTTP_200_OK)
     
 class PaymentDelete(APIView):

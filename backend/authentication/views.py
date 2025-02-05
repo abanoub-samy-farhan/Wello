@@ -50,7 +50,7 @@ class LoginView(APIView):
         new_session = UserSession(
             user_id=user,
             jwt_token=token,
-            expriy_at=datetime.utcnow() + timedelta(hours=1)
+            expriy_at=datetime.utcnow() + timedelta(seconds=60)
         )
         new_session.save()
 
@@ -59,12 +59,15 @@ class LoginView(APIView):
             key='jwt',
             value=token,
             httponly=True,
-            max_age=3600,
+            max_age=60 * 60,
             path='/',
         )
+        
 
         serializer = UserSerializer(user)
-        response.data['user'] = serializer.data
+        response.data = {
+            'user': serializer.data
+        }
         return response
 
 

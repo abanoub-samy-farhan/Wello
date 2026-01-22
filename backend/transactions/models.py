@@ -13,6 +13,7 @@ class Transaction(models.Model):
         PURCHASE = 'Purchase', 'Purchase'
         SEND = 'Send', 'Send Money'
         RECEIVE = 'Receive', 'Receive Money'
+        REQUEST = 'Request', 'Money Request'
     
     class TransactionStatus(models.TextChoices):
         PENDING = 'Pending', 'Pending'

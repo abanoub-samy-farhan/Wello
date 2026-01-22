@@ -1,5 +1,4 @@
 "use client";
-import "../general.css";
 import Navbar from "./navbar";
 import About from "./about";
 import { useEffect, useState } from "react";
@@ -31,11 +30,15 @@ export default function WelcomePage() {
     }, []);
 
     if (loading) {
-        return <Loading />;
+        return (
+            <div suppressHydrationWarning>
+                <Loading />
+            </div>
+        );
     }
 
     return (
-        <>
+        <div suppressHydrationWarning>
             {/* Navbar */}
             <Navbar signedIn={isSignedIn}/>
             <section className="p-8 md:p-20 h-auto w-full overflow-hidden">
@@ -70,6 +73,6 @@ export default function WelcomePage() {
                     () => setIsChatOpen(!isChatOpen)
                 }/>
             </Popover>
-        </>
+        </div>
     );
 }

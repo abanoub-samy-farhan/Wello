@@ -63,6 +63,8 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
             
             if len(phone_number) != 11:
                 raise serializers.ValidationError("Phone number is invalid")
+            validated_data['card_number'] = None
+            validated_data['expiry_date'] = None
             
         if provider.lower() == 'paypal':
             email = user.email
@@ -70,6 +72,8 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Email is required")
             if validated_data.get('method_type').lower() != 'online wallet':
                 raise serializers.ValidationError("Method type is invalid")
+            validated_data['card_number'] = None
+            validated_data['expiry_date'] = None
             
         
         validated_data['provider'] = provider.lower()

@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={raleway.variable}>
       <Suspense fallback={<Loading />}>
-        <body className="antialiased p4th-bg scroll-smooth">{children}</body>
+        <body suppressHydrationWarning={true} className="antialiased p4th-bg scroll-smooth">{children}</body>
       </Suspense>
     </html>
   );

@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Modal, Button, Typography } from 'antd';
+import { Table, Tag, Modal, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import 'antd/dist/reset.css';
 import { FetchTransactions, ResolveRequest } from '@/app/utils/fetches';

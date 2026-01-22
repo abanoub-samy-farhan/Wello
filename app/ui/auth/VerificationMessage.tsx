@@ -17,11 +17,11 @@ const VerificationMessage = () => {
           Verify Your Email
         </h1>
         <p className="text-primary1 mb-6">
-          Thank you for signing up! We've sent a verification link to your email.
+          Thank you for signing up! We&apos;ve sent a verification link to your email.
           Please check your inbox and click on the link to verify your account.
         </p>
         <p className="text-sm text-primary1">
-          Didn't receive the email? Check your spam folder
+          Didn&apos;t receive the email? Check your spam folder
         </p>
       </div>
     </div>

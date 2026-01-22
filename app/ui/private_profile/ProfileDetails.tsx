@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { EditOutlined } from '@ant-design/icons';
 
 interface UserDetails {
-  id: string;
+  user_id: string;
   full_name: string;
   email: string;
   phoneNumber?: string;

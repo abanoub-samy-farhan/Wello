@@ -75,7 +75,7 @@ class PaymentCreate(APIView):
 
 class PaymentSwitchPrimaryMethod(APIView):
     async def post(self, request):
-        user_id = request.data['user_id']
+        user_id = request.user_id
 
         try:
             user = await sync_to_async(User.objects.get)(id=user_id)

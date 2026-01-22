@@ -1,11 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { ConfigProvider, Steps, Spin } from 'antd';
+import { ConfigProvider, Steps } from 'antd';
 import InformationEntry from '../ui/newUserComponents/InformationEntry';
 import PaymentMethodEntry from '../ui/newUserComponents/PaymentMethodEntry';
 import ReviewEntries from '../ui/newUserComponents/ReviewEntries';
 import { User, PaymentMethod } from '../interfaces';
-import { Suspense } from 'react';
 import Loading from '../loading';
 
 const steps = [
@@ -26,7 +25,7 @@ export default function NewPage() {
   // Initialize user as null to represent the loading state
   const [user, setUser] = useState<User | null>(null);
   const [current, setCurrent] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>({
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>({
     payment_method_id: '',
     user_id: '',
     provider: '',
@@ -66,6 +65,10 @@ export default function NewPage() {
         is_first_login: data.is_first_login,
       };
 
+      if (fetchedUser.is_first_login === false) {
+        window.location.href = '/dashboard';
+      }
+
       setUser(fetchedUser);
       console.log('Fetched user:', fetchedUser);
     } catch (error) {
@@ -86,7 +89,7 @@ export default function NewPage() {
         address: user.address,
       });
 
-      const response = await fetch('http://localhost:8000/api/user/',
+      await fetch('http://localhost:8000/api/user/',
         {
           method: 'PUT',
           credentials: 'include',
@@ -118,7 +121,7 @@ async function updatePaymentMethod(paymentMethod: PaymentMethod){
       is_primary: paymentMethod.is_primary,
     });
 
-    const response = await fetch('http://localhost:8000/api/payment/create/',
+    await fetch('http://localhost:8000/api/payment/create/',
       {
         method: 'POST',
         credentials: 'include',
@@ -202,7 +205,7 @@ async function updatePaymentMethod(paymentMethod: PaymentMethod){
     >
       <div className="bg-white text-center h-screen overflow-auto w-screen p-16" style={{ color: '#3b1e54' }}>
         <h1 className="text-4xl font-bold">Welcome to Wello</h1>
-        <h2>Let's get started</h2>
+        <h2>Let&apos;s get started</h2>
         <Steps current={current} items={items} className="mt-10" />
           <div className="mt-10 border-primary3 h-fit justify-center">
             {current === 0 && <InformationEntry user={user} handleSubmit={handleSaveUser} />}

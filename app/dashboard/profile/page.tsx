@@ -27,9 +27,9 @@ const ProfilePage: React.FC = () => {
   
   return (
     <div className="bg-primary4 min-h-screen">
-      <ProfileHeader userName={user.full_name} />
+      {user ? <ProfileHeader userName={user?.full_name} /> : null}
       <main>
-        <ProfileDetails user={user} />
+        {user ? <ProfileDetails user={user} /> : null}
         <ProfileActions />
       </main>
     </div>

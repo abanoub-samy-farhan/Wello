@@ -79,6 +79,7 @@ class CreateTransaction(APIView):
         except ValidationError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(e)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class TransactionResolveRequest(APIView):
@@ -118,17 +119,17 @@ class TransactionResolveRequest(APIView):
                 )
                 
                 # Verify balance
-                if Accounts.get_primary_account_balance(sender_method.id) < amount:
+                if Account.get_primary_account_balance(sender_method.id) < amount:
                     raise ValidationError('Insufficient balance')
                 
                 # Process transfer
-                if (Accounts.withdraw_from_account(sender_method.id, amount) and
-                    Accounts.top_up_account(recipient_method.id, amount)):
+                if (Account.withdraw_from_account(sender_method.id, amount) and
+                    Account.top_up_account(recipient_method.id, amount)):
                     
                     # Update request transaction
                     transaction.status = Transaction.TransactionStatus.SUCCESS
                     transaction.description = 'Request fulfilled'
-                    transaction.balance = Accounts.get_balance(sender.id)
+                    transaction.balance = Account.get_balance(sender.id)
                     transaction.save()
                     
                     # Create recipient's transaction record
@@ -139,7 +140,7 @@ class TransactionResolveRequest(APIView):
                         recipient_id=sender,
                         status=Transaction.TransactionStatus.SUCCESS,
                         description=f'Received requested amount from {sender.full_name}',
-                        balance=Accounts.get_balance(recipient.id)
+                        balance=Account.get_balance(recipient.id)
                     )
                     
                     # Create notifications

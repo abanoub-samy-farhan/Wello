@@ -4,7 +4,7 @@ import AddMethodForm from './AddMethodForm';
 
 
 interface PaymentMethodEntryProps {
-    paymentMethod: Partial<PaymentMethod>;
+    paymentMethod: PaymentMethod;
     handleSubmit: (paymentMethod: PaymentMethod) => void;
 }
 

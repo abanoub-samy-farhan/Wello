@@ -7,7 +7,7 @@ class PaymentMethod(models.Model):
     provider = models.CharField(max_length=100)
     card_number = models.CharField(max_length=100, null=True, blank=True, unique=True)
     method_type = models.CharField(max_length=100)
-    expiry_date = models.CharField(max_length=5, null=True)
+    expiry_date = models.CharField(max_length=5, null=True, blank=True)
     is_primary = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

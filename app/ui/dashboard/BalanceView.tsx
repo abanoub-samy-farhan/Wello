@@ -5,7 +5,13 @@ import  DashboardPaymentMethodView  from './DashboardPaymentMethodView';
 import { SwitchPrimaryMethod } from '@/app/utils/fetches';
 import {message} from 'antd';
 
-export default function BalanceView({ paymentMethods }: { paymentMethods: PaymentMethod[] }) {
+export default function BalanceView({ 
+    paymentMethods, 
+    setIsAddPaymentModalOpen
+ }: { 
+    paymentMethods: PaymentMethod[], 
+    setIsAddPaymentModalOpen: React.Dispatch<React.SetStateAction<boolean>> 
+}) {
     let swithcAccountOption = false;
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -58,12 +64,24 @@ export default function BalanceView({ paymentMethods }: { paymentMethods: Paymen
                     ))}
                 </div>
                 <div className="flex flex-col items-center justify-center gap-2 mt-4">
-                    {swithcAccountOption && (
-                        <button className="text-primary1 font-bold text-sm mt-2 hover:text-primary2 transition-all 
+                    {swithcAccountOption ? (
+                        <button className="text-primary1 font-bold text-sm mt-2 
+                        hover:text-primary2 transition-all 
                         duration-300 ease-in-out"
                         onClick={handleSwitchPrimary}
                         >Switch Primary</button>
-                    )}
+                    ) :
+                    // Add another payment method button
+                    <button className="text-primary1 font-bold text-sm mt-2 
+                    hover:text-primary2 transition-all 
+                        duration-300 ease-in-out"
+                    onClick={() => {
+                        setIsAddPaymentModalOpen(true);
+                    }}
+                    >
+                        Add Payment Method
+                    </button>
+                    }
                 </div>
             </div>
         </div>

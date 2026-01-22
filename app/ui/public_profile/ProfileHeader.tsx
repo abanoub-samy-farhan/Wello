@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import Image from 'next/image';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 const ProfileHeader: React.FC = () => {
@@ -15,10 +16,11 @@ const ProfileHeader: React.FC = () => {
           {/* Added a background to enhance logo visibility */}
           <div 
           >
-            <img
+            <Image
               src="/WelloLogo.png"
               alt="Logo"
-              className="h-10 w-auto"
+              width={40}
+              height={64}
             />
           </div>
           <span className="ml-3 text-2xl font-bold font-sans text-primary1">

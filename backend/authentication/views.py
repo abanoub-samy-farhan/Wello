@@ -39,6 +39,9 @@ class LoginView(APIView):
 
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect password!')
+        
+        if user.is_verified == False:
+            raise AuthenticationFailed('Email not verified!')
 
         payload = {
             'id': str(user.id),
@@ -88,7 +91,6 @@ class UserGetAll(APIView):
 
 class UserCreate(APIView):
     def post(self, request):
-        print(request.data)
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -126,7 +128,7 @@ class UserCRUD(APIView):
         user_id = request.user_id
         if not user_id:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        user = User.objects.get(id=id)
+        user = User.objects.get(id=user_id)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     

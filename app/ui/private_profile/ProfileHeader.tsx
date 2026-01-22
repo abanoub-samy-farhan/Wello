@@ -2,10 +2,9 @@ import React from 'react';
 
 interface ProfileHeaderProps {
   userName: string;
-  avatarUrl?: string;
 }
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ userName, avatarUrl }) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ userName }) => {
   return (
     <header className="text-primary1 py-6">
       <div className="max-w-7xl mx-auto flex justify-between px-5 w-screen md:ml-20">

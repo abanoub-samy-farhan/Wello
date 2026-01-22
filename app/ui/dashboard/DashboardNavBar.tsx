@@ -1,13 +1,13 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import './dashboard.css';
+import Image from 'next/image';
 import { useEffect } from 'react';
 import { checkSignedIn } from '@/app/utils/fetches';
 
 export default function DashboardNavBar() {
     const [active, setActive] = useState('Home');
-    const [notifications, setNotifications] = useState(0);
+    const [notifications] = useState(0);
     const [open, setOpen] = useState(false);
     
     useEffect(() => {
@@ -19,7 +19,7 @@ export default function DashboardNavBar() {
         }, []);
 
     const handleSignOut = async () => {
-        const resonse = await fetch('http://localhost:8000/api/auth/logout', {
+        await fetch('http://localhost:8000/api/auth/logout', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -33,7 +33,22 @@ export default function DashboardNavBar() {
         });
     }
 
-    
+    const handleDeleteAccount = async () => {
+        await fetch('http://localhost:8000/api/user/', {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then((res) => {
+            if (res.status === 200) {
+                console.log('Account Deleted');
+                window.location.href = '/';
+            }
+        });
+
+        window.location.href = '/';
+    };
     return (
         <nav className={`group bg-gray-200 w-full md:w-20 md:hover:w-56 transition-all 
         duration-250 ease-in-out md:h-screen 
@@ -44,13 +59,13 @@ export default function DashboardNavBar() {
             border-b-2 border-opacity-20 border-primary1 cursor-pointer"
             onClick={() => window.location.href = '/'}
             >
-                <img src="/Wello%20Logo.png" alt="Logo" className="h-10" />
+                <Image src="/Wello%20Logo.png" alt="Logo" width={40} height={64} />
                 <h1 className="text-2xl font-bold p-1 transition-opacity duration-250 ease-in-out">
                     Wello
                 </h1>
             </div>
             <div className="flex items-center justify-center md:hidden cursor-pointer p-2">
-                <img src="/Wello%20Logo.png" alt="Logo" className="h-10"
+                <Image src="/Wello%20Logo.png" alt="Logo" width={40} height={64}
                 onClick={() => setOpen(!open)}
                 />
             </div>
@@ -67,7 +82,7 @@ export default function DashboardNavBar() {
                         }`}
                         onClick={() => setActive('Home')}
                     >
-                        <img src="/dashboard_home_icon.png" alt="Home" className="h-8" />
+                        <Image src="/dashboard_home_icon.png" alt="Home" width={32} height={32} />
                         <Link
                             href="/dashboard"
                             className="whitespace-nowrap md:opacity-0 md:group-hover:opacity-100 
@@ -89,7 +104,7 @@ export default function DashboardNavBar() {
                         `}
                         onClick={() => setActive('Profile')}
                     >
-                        <img src="/dashboard_profile_icon.png" alt="Profile" className="h-8" />
+                        <Image src="/dashboard_profile_icon.png" alt="Profile" width={32} height={32} />
                         <Link
                             href="/dashboard/profile"
                             className="whitespace-nowrap md:opacity-0 md:group-hover:opacity-100 
@@ -111,7 +126,7 @@ export default function DashboardNavBar() {
                         `}
                         onClick={() => setActive('Invoices')}
                     >
-                        <img src="/dashboard_invoice_icon.png" alt="Invoices" className="h-8" />
+                        <Image src="/dashboard_invoice_icon.png" alt="Invoices" width={32} height={32} />
                         <Link
                             href="/dashboard/invoices"
                             className="whitespace-nowrap md:opacity-0 
@@ -133,7 +148,7 @@ export default function DashboardNavBar() {
                         `}
                         onClick={() => setActive('Notification')}
                     >
-                        <img src="/dashboard_notification_icon.png.png" alt="Notification" className="h-8" />
+                        <Image src="/dashboard_notification_icon.png" alt="Notification" width={32} height={32} />
                         <Link
                             href="/dashboard/notifications"
                             className="whitespace-nowrap md:opacity-0 
@@ -152,7 +167,7 @@ export default function DashboardNavBar() {
             <div className=" absolute mt-5 md:mt-20 md:border-t-2 md:border-primary1 md:border-opacity-20 w-full">
                 <div className={`flex items-center overflow-hidden gap-2 pl-5 py-4  cursor-pointer
                 hover:bg-red-500 hover:text-white p-1 transition-all duration-250 ease-in-out font-bold`}>
-                    <img src="/logout_icon.png" alt="Sign Out" className="h-5 w-fit" />
+                    <Image src="/logout_icon.png" alt="Sign Out" width={20} height={20} />
                     <Link
                         href="/auth/sign_in"
                         className="whitespace-nowrap md:opacity-0 
@@ -161,6 +176,21 @@ export default function DashboardNavBar() {
                     >
                         Sign Out
                     </Link>
+                </div>
+            </div>
+            {/* Delete Account */}
+            <div className=" absolute bottom-5 md:border-t-2 md:border-primary1 md:border-opacity-20 w-full">
+                <div className={`flex items-center overflow-hidden gap-2 pl-5 py-4  cursor-pointer
+                hover:bg-red-700 hover:text-white p-1 transition-all duration-250 ease-in-out font-bold`}>
+                    <button className="flex items-center gap-2"
+                    onClick={handleDeleteAccount}
+                    >
+                        <span className="whitespace-nowrap md:opacity-0 
+                        md:group-hover:opacity-100 transition-opacity duration-250 ease-in-out"
+                        >
+                            Delete Account
+                        </span>
+                    </button>
                 </div>
             </div>
         </nav>

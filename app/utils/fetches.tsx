@@ -45,7 +45,7 @@ export async function fetchUser() {
           address: user.address,
         });
   
-        const response = await fetch('http://localhost:8000/api/user/',
+        await fetch('http://localhost:8000/api/user/',
           {
             method: 'PUT',
             credentials: 'include',
@@ -69,7 +69,7 @@ export async function fetchUser() {
 
 export async function MoneyTransfer(userId, TransferType, amount){
   let status = false;
-  const response = await fetch('http://localhost:8000/api/transaction/create/', {
+  await fetch('http://localhost:8000/api/transaction/create/', {
     method: "POST",
     credentials: 'include',
     headers: {
@@ -121,7 +121,7 @@ export async function FetchTransactions(){
 }
 
 export async function ResolveRequest(transactionId, status){
-  let response = await fetch('http://localhost:8000/api/transaction/resolve/', {
+  const response = await fetch('http://localhost:8000/api/transaction/resolve/', {
     method: "POST",
     credentials: 'include',
     headers: {

@@ -10,9 +10,8 @@ import {User} from '../../interfaces'
 const PublicProfilePage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null)
   const id = usePathname().split('/')[2]
-  console.log(id);
   async function fetchPublicProfileData(){
-    const response = await fetch(`http://localhost:8000/api/user/${id}`, {
+    await fetch(`http://localhost:8000/api/user/${id}`, {
       method: 'GET',
       credentials: 'include',
     }).then((res) => {
@@ -42,7 +41,7 @@ const PublicProfilePage: React.FC = () => {
       <ProfileHeader />
       <main className="container mx-auto px-4">
         <ProfileDetails user={user} />
-        <Actions />
+        <Actions user_id={id}/>
       </main>
     </div>
   );

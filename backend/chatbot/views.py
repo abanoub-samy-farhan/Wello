@@ -2,6 +2,7 @@
 
 import json
 import logging
+import requests
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -11,8 +12,6 @@ import os
 
 # Initialize logging
 logger = logging.getLogger(__name__)
-
-openai.api_key = os.getenv('OPEN_AI_KEY')
 
 @csrf_exempt
 def chatbot_view(request):
@@ -40,14 +39,24 @@ def chatbot_view(request):
             *messages
         ]
 
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messages
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {os.getenv('OPEN_AI_KEY')}",
+                "Content-Type": "application/json"
+            },
+            data=json.dumps({
+                "model": "openai/gpt-4o",
+                "messages": messages
+            })
         )
 
         # Extract the assistant's reply
-        assistant_reply = None
-        print(response.choices[0].message.content)
+        if (response.status_code == 200):
+            assistant_reply = response.json()['choices'][0]['message']['content']
+        else:
+            logger.error(f"OpenRouter API error: {response.status_code} - {response.text}")
+            assistant_reply = "I'm sorry, but I'm currently unable to process your request."
 
         return JsonResponse({'reply': assistant_reply})
 

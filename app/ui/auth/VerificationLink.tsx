@@ -8,7 +8,7 @@ interface VerifyProps {
 
 const VerificationLink: React.FC<VerifyProps> = ({token, email}) =>{
     useEffect(() => {
-      const response = fetch('http://localhost:8000/api/auth/verify/', {
+      fetch('http://localhost:8000/api/auth/verify/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,7 +21,7 @@ const VerificationLink: React.FC<VerifyProps> = ({token, email}) =>{
           console.log('Email verification failed');
         }
       });
-    }, []);
+    });
     return (<></>)
   }
   

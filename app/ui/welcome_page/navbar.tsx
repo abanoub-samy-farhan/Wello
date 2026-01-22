@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { SignInButton, GoToDashboardButton } from "../buttons";
 import Link from "next/link";
-import { isSignedIn } from "@/app/utils/fetches";
-import Loading from "../../loading";
+import Image from "next/image";
 
 export default function Navbar(signedIn) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,7 +11,7 @@ export default function Navbar(signedIn) {
             {/* Logo Section */}
             <Link href="/" className="flex flex-row items-center gap-2">
                 <div className="flex flex-row items-center gap-2 px-2">
-                    <img src="/Wello%20Logo.png" alt="logo" className="h-10 w-fit" />
+                    <Image src="/Wello%20Logo.png" alt="logo" width={40} height={64} />
                     <h1 className="text-2xl font-bold p1st">Wello</h1>
                 </div>
             </Link>

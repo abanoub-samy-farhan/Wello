@@ -1,24 +1,28 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {message} from 'antd';
 
 
 const SignIn: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [emailError, setEmailError] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const success = () => {
     messageApi.success('Login Successful');
   };
 
-  const error = () => {
-    messageApi.error('Who da hell are you ?');
-  };
+  const error = (message?: string) => {
+    messageApi.error(message || 'Login Failed');
+  }
 
   const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = fetch('http://localhost:8000/api/auth/login', {
+    if (isSubmitting) return; // Prevent multiple submissions
+    setIsSubmitting(true);
+    fetch('http://localhost:8000/api/auth/login', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -38,18 +42,22 @@ const SignIn: React.FC = () => {
           window.location.href = '/dashboard';
       } else {
         if (res.status === 403)
-          setEmailError('Email or password is wrong');
-          error();
-    }})
-
+        {
+          const cause = await res.json();
+          setEmailError(cause.detail);
+          error(cause.detail);
+        }
+    }}).finally(() => {
+      setIsSubmitting(false);
+    });
   }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-primary4 text-primary1">
       {contextHolder}
       <div className="bg-white shadow-xl rounded-lg p-8 w-full max-w-md">
         {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img src="/WelloLogo.png" alt="Wello Logo" className="h-16 w-auto" />
+        <div className="flex justify-center mb-6 cursor-pointer" onClick={() => {window.location.href = '/'}}>
+          <Image src="/WelloLogo.png" alt="Wello Logo" width={40} height={64} />
         </div>
         {/* Form Header */}
         <h2 className="text-3xl font-bold text-primary1 text-center mb-6 font-sans">Sign In</h2>
@@ -98,13 +106,15 @@ const SignIn: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full py-3 mt-6 bg-primary2 hover:bg-primary1 text-white font-bold rounded-lg transition duration-300"
+            className="w-full py-3 mt-6 bg-primary2 hover:bg-primary1 
+            text-white font-bold rounded-lg transition duration-300"
+            disabled={isSubmitting}
           >
-            Sign In
+            {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-primary1">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/auth/sign_up" className="font-medium text-primary2 hover:text-primary1">
             Sign Up
           </Link>

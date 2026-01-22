@@ -1,17 +1,20 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react'; 
 
 
 const SignUp: React.FC = () => {
   const [emailerror, setEmailError] = useState(false);
   const [phoneerror, setPhoneError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSignUp = async (event) => {
     event.preventDefault();
     setEmailError(false);
     setPhoneError(false);
-    const response = await fetch('http://localhost:8000/api/auth/register', {
+    setIsSubmitting(true);
+    await fetch('http://localhost:8000/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -38,14 +41,16 @@ const SignUp: React.FC = () => {
       }
     }).catch((error) => {
       console.error('Error:', error);
-    })
+    }).finally(() => {
+      setIsSubmitting(false);
+    });
   }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-primary4 text-primary1">
       <div className="bg-white shadow-xl rounded-lg p-8 w-full max-w-md">
         {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img src="/WelloLogo.png" alt="Wello Logo" className="h-16 w-auto" />
+        <div className="flex justify-center mb-6 cursor-pointer" onClick={() => {window.location.href = '/'}}>
+          <Image src="/WelloLogo.png" alt="Wello Logo" width={40} height={64} />
         </div>
         {/* Form Header */}
         <h2 className="text-3xl font-bold text-primary1 text-center mb-6 font-sans">Sign Up</h2>
@@ -130,9 +135,11 @@ const SignUp: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full py-3 mt-6 bg-primary2 hover:bg-primary1 text-white font-bold rounded-lg transition duration-300"
+            className="w-full py-3 mt-6 bg-primary2 hover:bg-primary1 text-white 
+            font-bold rounded-lg transition duration-300"
+            disabled={isSubmitting}
           >
-            Sign Up
+            {isSubmitting ? 'Signing Up...' : 'Sign Up'}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-primary1">

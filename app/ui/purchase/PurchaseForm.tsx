@@ -11,14 +11,14 @@ const PurchaseForm: React.FC = () => {
   const success = () => {
     messageApi.open({
       type: 'success',
-      content: 'Good Boy mf',
+      content: 'Purchase Successful!',
     });
   };
 
   const error = () => {
     messageApi.open({
       type: 'error',
-      content: 'Fuck you',
+      content: 'Purchase Failed. Please try again.',
     });
   };
   const handleSubmit = async (e: React.FormEvent) => {

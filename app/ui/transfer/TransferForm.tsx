@@ -5,10 +5,15 @@ import React, { useState } from 'react';
 import { MoneyTransfer } from '@/app/utils/fetches';
 import { message } from 'antd';
 
-const TransferForm: React.FC = () => {
-  const [userId, setUserId] = useState('');
+interface TransferFormProps {
+  user_id: string | null,
+  transfer_type: 'Send' | 'Request' | null,
+}
+
+const TransferForm: React.FC<TransferFormProps> = ({ user_id, transfer_type }) => {
+  const [userId, setUserId] = useState(user_id || '');
   const [amount, setAmount] = useState(0);
-  const [transferType, setTransferType] = useState<'Send' | 'Request'>('Send');
+  const [transferType, setTransferType] = useState<'Send' | 'Request'>(transfer_type || 'Send');
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -98,7 +103,7 @@ const TransferForm: React.FC = () => {
             step="1"
             className="w-full px-4 py-2 border border-primary3 rounded-md focus:outline-none focus:ring-2 focus:ring-primary2"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => setAmount(Number(e.target.value))}
             required
           />
         </div>

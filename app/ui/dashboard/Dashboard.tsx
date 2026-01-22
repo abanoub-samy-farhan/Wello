@@ -10,12 +10,24 @@ import {
 import Loading from '../../loading';
 import { fetchUser } from '@/app/utils/fetches'; // Ensure this returns a User object
 import BalanceView from './BalanceView';
+import AddNewPaymentMethodModel from './AddNewPaymentMethodModel';
+import AddMethodForm from '../newUserComponents/AddMethodForm';
+import { message } from 'antd';
 
 export default function DashboardPage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null); // Error state
+  const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState<boolean>(false);
+
+  const [msg, contextHolder] = message.useMessage();
+  const success = (msg: string) => {
+    message.success(msg);
+  }
+  const errorMsg = (msg: string) => {
+    message.error(msg);
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -40,7 +52,7 @@ export default function DashboardPage() {
 
         if (Array.isArray(paymentData.paymentMethods)) {
           // If paymentMethods is an array within data
-          lst = paymentData.paymentMethods.map((pm: any) => ({
+          lst = paymentData.paymentMethods.map((pm: PaymentMethod) => ({
             payment_method_id: pm.payment_method_id,
             user_id: pm.user_id,
             provider: pm.provider,
@@ -52,7 +64,7 @@ export default function DashboardPage() {
           }));
         } else if (Array.isArray(paymentData)) {
           // If data itself is an array
-          lst = paymentData.map((pm: any) => ({
+          lst = paymentData.map((pm: PaymentMethod) => ({
             payment_method_id: pm.payment_method_id,
             user_id: pm.user_id,
             provider: pm.provider,
@@ -70,7 +82,7 @@ export default function DashboardPage() {
 
         const fetchedUser = await fetchUser();
         setUser(fetchedUser);
-      } catch (err: any) {
+      } catch (err) {
         console.error('Failed to fetch data:', err);
         setError('Failed to load payment methods or user data. Please try again later.');
       } finally {
@@ -93,6 +105,36 @@ export default function DashboardPage() {
     );
   }
 
+  const handleSubmitModal = async (paymentMethod: PaymentMethod) => {
+    const paymentMethodJSON = JSON.stringify({
+      provider: paymentMethod.provider,
+      method_type: paymentMethod.method_type,
+      card_number: paymentMethod.card_number,
+      expiry_date: paymentMethod.expiry_date.substring(5, 10),
+      is_primary: false,
+    })
+
+    await fetch('http://localhost:8000/api/payment/create/', 
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: paymentMethodJSON,
+      }
+    ).then((res) => {
+      if (res.ok) {
+        console.log('Success');
+        success('Payment method added successfully!');
+        window.location.reload();
+      }
+      else {
+        errorMsg(`Failed to add payment method: ${res.status} ${res.statusText}`);
+      }
+    });
+  }
+
   return (
     <ConfigProvider
       theme={{
@@ -102,6 +144,12 @@ export default function DashboardPage() {
         },
       }}
     >
+      <AddNewPaymentMethodModel
+        isOpen={isAddPaymentModalOpen}
+        onClose={() => setIsAddPaymentModalOpen(false)}
+      >
+        <AddMethodForm handleSubmit={handleSubmitModal}/>
+      </AddNewPaymentMethodModel>
       <div className="flex flex-col bg-primary4 text-primary1 h-screen w-screen md:ml-20 p-10">
         <div className="flex flex-col text-3xl font-semibold gap-2 mt-10 md:mt-0">
           <h1>Welcome, {user?.full_name || 'User'}</h1>
@@ -110,7 +158,7 @@ export default function DashboardPage() {
         
         {/* Display Payment Methods */}
         <div className="flex flex-row gap-4 mt-6">
-            <BalanceView paymentMethods={paymentMethods} />
+            <BalanceView paymentMethods={paymentMethods} setIsAddPaymentModalOpen={setIsAddPaymentModalOpen} />
         </div>
 
         <div className="flex flex-col gap-4 mt-10 border-t-2 py-4 border-primary3 pt-4 justify-center items-center">

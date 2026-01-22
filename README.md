@@ -3,8 +3,6 @@
 
 Wello aims to revolutionize the banking system by integrating multiple transactional systems into a single, user-friendly dashboard interface. This unified platform allows users to securely manage their financial processes, trace transaction history, and centralize online payments and operations all in one place.
 
----
-
 ## **Features**  
 
 - **User Authentication with 2FA**: Secure sign-in/sign-out with two-factor authentication.
@@ -20,17 +18,16 @@ Wello aims to revolutionize the banking system by integrating multiple transacti
 - **Dashboard**: Comprehensive overview of the user's financial activities.
 - **Public Profile**: Shareable profiles displaying user information.
 - **Private Profile**: Secure section for users to manage personal information.
-- **Report/Feedback System**: Users can report issues or provide feedback on the platform.
 
----
+
 ## **DB Schema**  
+![Database Schema](/public/Wello%20Project.png)
 
 
----
+## **Contribution** 
 
-## **Contribution**  
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change or improve, [Email Us](mailto:abanoubsamy2341@gmail.com) 
----
+
 ## **License**  
 Copyright © 2024 Abanoub Aziz, Abdulrahman Ryiad  
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.  

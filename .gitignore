@@ -47,3 +47,4 @@ coverage/
 *.old
 *.orig
 *.swp
+docker-compose.yml
